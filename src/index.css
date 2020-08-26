@@ -11,3 +11,26 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+#map {
+  width: 100vw;
+  height: 50vh;
+}
+
+.navbar {
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  padding-bottom: 0px;
+  width: 100%;
+}
+
+.navbar a {
+  float: left;
+  display: block;
+  text-align: center;
+}
+
+body {
+  padding-top: 95px;
+}
