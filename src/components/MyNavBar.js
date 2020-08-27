@@ -13,7 +13,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 // fixed="top"
 function MyNavBar(props) {
-  console.log("_NavBar_");
+  // console.log("_NavBar_");
   return (
     <Navbar bg="primary" fixed="top">
       <Navbar.Brand>

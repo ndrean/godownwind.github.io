@@ -5,13 +5,12 @@ import Button from "react-bootstrap/Button";
 import urlBack from "../helpers/urlBack";
 
 function LoginForm({ user, ...props }) {
-  console.log("__form__");
+  // console.log("__form__");
   const [showModal, setShowModal] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
   const [loggedIn, setLoggedIn] = React.useState(false);
   const [result, setResult] = React.useState("");
-  const [avatar, setAvatar] = React.useState("");
 
   function openModal() {
     setShowModal(true);
@@ -23,7 +22,7 @@ function LoginForm({ user, ...props }) {
   }
 
   function onLogin() {
-    console.log("_onLogin_");
+    //console.log("_onLogin_");
     const email = document.querySelector("#email").value;
     const password = document.querySelector("#password").value;
     if (!email || !password) {
@@ -34,7 +33,7 @@ function LoginForm({ user, ...props }) {
   }
 
   function onRegister() {
-    console.log("_onRegister_");
+    //console.log("_onRegister_");
     const email = document.querySelector("#email").value;
     const password = document.querySelector("#password").value;
     if (!email || !password) {
@@ -54,12 +53,13 @@ function LoginForm({ user, ...props }) {
   }
 
   async function onLoginSuccess(method, response) {
+    // console.log("__onLoginSuccess__");
     setResult({ method, response });
-    const { email, password } = response;
 
-    //1. using facebook
+    //1. if using facebook
     if (method === "facebook") {
-      // 1.1 call Facebook to get user's credentials
+      // console.log("__FB__");
+      // 1.1 call Facebook to get user's credentials by response
       const {
         authResponse: { accessToken },
       } = response;
@@ -72,9 +72,8 @@ fields=id,name,email,picture.width(640).height(640)`);
           data: { url },
         },
       } = await query.json();
-      setAvatar(url);
 
-      // 1.2 call backend to FIND OR CREATE user and get API authentification Knock_token
+      // 1.2 call backend to FIND OR CREATE user and get Knock_token
       const queryAppToken = await fetch(urlBack + "/findCreateFbUser", {
         method: "POST",
         body: JSON.stringify({
@@ -86,32 +85,38 @@ fields=id,name,email,picture.width(640).height(640)`);
         headers: { "Content-Type": "application/json" },
       });
       if (queryAppToken.ok) {
-        const { access_token } = await queryAppToken.json();
-        try {
-          const getCurrentUser = await fetch(urlBack + "/profile", {
-            headers: { authorization: "Bearer " + access_token },
-          });
-          const currentUser = await getCurrentUser.json();
-          if (currentUser.confirm_email && !currentUser.confirm_token) {
-            saveUser(access_token, currentUser);
-          } else {
-            onLoginFail("Check your mail to confirm password update");
+        const resp = await queryAppToken.json();
+        // backend returns '201:created' only if created but mail not confirmed
+        if (resp.status === 201) {
+          onLoginFail("Check your mail to confirm password update");
+        } else {
+          // just created and mail sent
+          const { access_token } = resp;
+          try {
+            const getCurrentUser = await fetch(urlBack + "/profile", {
+              headers: { authorization: "Bearer " + access_token },
+            });
+            const currentUser = await getCurrentUser.json();
+            if (currentUser.confirm_email && !currentUser.confirm_token) {
+              //setAvatar(url);
+              saveUser(access_token, currentUser);
+            } else {
+              onLoginFail("Check your mail to confirm password update 2");
+            }
+          } catch (err) {
+            throw new Error(err);
           }
-        } catch (err) {
-          throw new Error(err);
         }
-      } else {
-        onLoginFail("Please confirm with your email");
       }
     }
     // 2. using the form
-    const authData = JSON.stringify({
-      auth: { email, password },
-    });
 
     // 2.1 form sign-up
     if (method === "formUp") {
-      console.log("*up*");
+      const { email, password } = response;
+      const authData = JSON.stringify({
+        auth: { email, password },
+      });
       // 1- check if user already exists with these credentials
       try {
         const getUserToken = await fetch(urlBack + "/getUserToken", {
@@ -128,13 +133,13 @@ fields=id,name,email,picture.width(640).height(640)`);
           });
           const currentUser = await getCurrentUser.json();
           if (currentUser.confirm_email && !currentUser.confirm_token) {
-            console.log("__confirmed__");
+            // console.log("__confirmed__");
             saveUser(jwt, currentUser);
           } else {
             onLoginFail("Check your mails to confirm password update");
           }
         } else {
-          console.log("__update__");
+          // console.log("__update__");
           // credentials don't exist: update with received credentials via email
           const userData = JSON.stringify({
             user: { email: response.email, password: response.password },
@@ -156,7 +161,7 @@ fields=id,name,email,picture.width(640).height(640)`);
               });
 
               if (getUserToken.ok) {
-                console.log("updated in db, waiting for mail confirmation");
+                console.log("** updated in db, waiting for mail confirmation");
                 const { jwt } = await getUserToken.json();
 
                 // check in db if email_confirmed with the token
@@ -166,7 +171,7 @@ fields=id,name,email,picture.width(640).height(640)`);
                 const currentUser = await getCurrentUser.json();
 
                 if (currentUser.confirm_mail && !currentUser.confirm_token) {
-                  console.log("__updated__");
+                  // console.log("__updated__");
                   saveUser(jwt, currentUser);
                 } else {
                   onLoginFail("Check your mail to confirm password update 2");
@@ -188,7 +193,10 @@ fields=id,name,email,picture.width(640).height(640)`);
     // 2.2 form sign-in
     if (method === "formIn") {
       // check user with the jwt token return from the backend
-      console.log("*in*");
+      const { email, password } = response;
+      const authData = JSON.stringify({
+        auth: { email, password },
+      });
       try {
         const getUserToken = await fetch(urlBack + "/getUserToken", {
           method: "POST",
@@ -244,7 +252,7 @@ fields=id,name,email,picture.width(640).height(640)`);
     setLoggedIn(false);
     localStorage.removeItem("jwt");
     localStorage.removeItem("user");
-    setAvatar("");
+    //setAvatar("");
     setResult("");
     window.alert("bye");
   }
@@ -267,7 +275,7 @@ fields=id,name,email,picture.width(640).height(640)`);
         Connect
       </Button>
 
-      {avatar && user ? (
+      {user && (
         <Button
           onClick={() => logOut()}
           style={{
@@ -280,22 +288,6 @@ fields=id,name,email,picture.width(640).height(640)`);
         >
           {user.email}
         </Button>
-      ) : (
-        localStorage.jwt &&
-        result && (
-          <Button
-            onClick={() => logOut()}
-            style={{
-              padding: "5px",
-              margin: "auto",
-              border: "none",
-              backgroundColor: "#1666C5",
-              color: "white",
-            }}
-          >
-            {result.response.email}
-          </Button>
-        )
       )}
 
       {props.fbConfig && (
@@ -305,8 +297,8 @@ fields=id,name,email,picture.width(640).height(640)`);
           loading={loading}
           error={error}
           initialTab={"login"}
-          loginError={{ label: "Couldn't sign in, please try again." }}
-          registerError={{ label: "Couldn't sign up, please try again." }}
+          loginError={{ label: "Couldn't sign in, please try again 1" }}
+          registerError={{ label: "Couldn't sign up, please try again 2" }}
           startLoading={startLoading}
           finishLoading={finishLoading}
           providers={{
