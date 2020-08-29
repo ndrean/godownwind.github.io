@@ -1,18 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 
-import { Container, Row, Button, Spinner } from "react-bootstrap";
+import { Container, Row, Button } from "react-bootstrap";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
+//import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FaCheck } from "react-icons/fa";
 
 import CardItem from "./CardItem";
-import Details from "./Details";
+//import Details from "./Details";
 
 import urlBack from "../helpers/urlBack";
-import EventModal from "./EventModal";
+//import EventModal from "./EventModal";
 import EventForm from "./EventForm";
 import fetchModif from "../helpers/fetchModif"; // returns data after PATCH or POST depending upon endpoint
 import cloudName from "../helpers/cloudName"; // for Cloudinary
+
+const LazyEventModal = React.lazy(() => import("./EventModal"));
+const LazyDetails = React.lazy(() => import("./Details"));
 
 function CardList({ user, users, events, ...props }) {
   // events= [event:{user, itinary, participants, url, publicID, comment}]
@@ -141,7 +144,8 @@ function CardList({ user, users, events, ...props }) {
         const newfd = new FormData();
         newfd.append("file", fileCL);
         newfd.append("upload_preset", "ml_default");
-        return fetch(`https://api.cloudinary.com/v1_1/${cloudName}/upload`, {
+        // direct call to the CL REST API
+        return fetch(`https://api.cloudinary.com/v1_1/${cloudName}/upload/`, {
           method: "POST",
           body: newfd,
         })
@@ -361,37 +365,38 @@ function CardList({ user, users, events, ...props }) {
           variant="outline-dark"
           onClick={handleShow}
           style={{ fontSize: "30px" }}
+          aria-label="event create"
         >
-          {loading ? (
-            <Spinner animation="border" role="status">
-              <span className="sr-only">Loading...</span>
-            </Spinner>
-          ) : (
+          {!loading && (
             <p>
-              <FontAwesomeIcon icon={faCheck} /> <span> Create an event</span>
+              <FaCheck size={20} />
+              <span> Create an event</span>
             </p>
           )}
         </Button>
 
         {!loading && (
-          <EventModal show={show && !loading} onhandleClose={handleClose}>
-            {/* this child goes into the body of the modal */}
-            <EventForm
-              users={users}
-              participants={participants}
-              date={itinary.date}
-              start={itinary.start}
-              end={itinary.end}
-              comment={comment}
-              previewCL={previewCL}
-              publicID={publicID}
-              onFormSubmit={handleFormSubmit}
-              onhandleItinaryChange={handleItinaryChange}
-              onSelectChange={handleSelectChange}
-              onhandlePictureCL={handlePictureCL}
-              onhandleCommentChange={handleCommentChange}
-            />
-          </EventModal>
+          <Suspense fallback={<span>Loading...</span>}>
+            <LazyEventModal show={show && !loading} onhandleClose={handleClose}>
+              {/* this child goes into the body of the modal */}
+
+              <EventForm
+                users={users}
+                participants={participants}
+                date={itinary.date}
+                start={itinary.start}
+                end={itinary.end}
+                comment={comment}
+                previewCL={previewCL}
+                publicID={publicID}
+                onFormSubmit={handleFormSubmit}
+                onhandleItinaryChange={handleItinaryChange}
+                onSelectChange={handleSelectChange}
+                onhandlePictureCL={handlePictureCL}
+                onhandleCommentChange={handleCommentChange}
+              />
+            </LazyEventModal>
+          </Suspense>
         )}
       </Row>
 
@@ -406,18 +411,20 @@ function CardList({ user, users, events, ...props }) {
               onhandleRemove={(e) => handleRemove(e, event)}
               onhandleEdit={() => handleEdit(event)}
             >
-              <Details
-                event={event}
-                index={index}
-                modalId={modalId}
-                onhandleShowDetail={() => handleShowDetail(index)}
-                onhandlePush={() => handlePush(index, modalId, event)}
-                onhandleCloseDetail={() => handleCloseDetail(index)}
-                checkUser={checkUser}
-                // onCheckUserDemand={() =>
-                //   checkUserDemand(index, modalId, event)
-                // }
-              />
+              <Suspense fallback={<span>Loading...</span>}>
+                <LazyDetails
+                  event={event}
+                  index={index}
+                  modalId={modalId}
+                  onhandleShowDetail={() => handleShowDetail(index)}
+                  onhandlePush={() => handlePush(index, modalId, event)}
+                  onhandleCloseDetail={() => handleCloseDetail(index)}
+                  checkUser={checkUser}
+                  // onCheckUserDemand={() =>
+                  //   checkUserDemand(index, modalId, event)
+                  // }
+                />
+              </Suspense>
             </CardItem>
           );
         })}

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
@@ -7,9 +7,13 @@ import Col from "react-bootstrap/Col";
 import Image from "react-bootstrap/Image";
 
 //import { Image as CLImage, CloudinaryContext } from "cloudinary-react";
-import Select from "react-select";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+//import Select from "react-select";
 
+//import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
+import { FaCameraRetro, FaPaperPlane } from "react-icons/fa";
+
+const LazySelect = React.lazy(() => import("react-select"));
 //import cloudName from "../config/cloudName";
 
 const EventForm = (props) => {
@@ -82,21 +86,24 @@ const EventForm = (props) => {
         </Form.Group>
         <Form.Group controlId="ControlKiters">
           <Form.Label>Participants</Form.Label>
-          <Select
-            defaultValue={defaultOpt}
-            isMulti
-            name="participants"
-            options={options}
-            className="basic-multi-select"
-            classNamePrefix="select"
-            onChange={onSelectChange}
-          />
+          <Suspense fallback={<div>Loading...</div>}>
+            <LazySelect
+              defaultValue={defaultOpt}
+              isMulti
+              name="participants"
+              options={options}
+              className="basic-multi-select"
+              classNamePrefix="select"
+              onChange={onSelectChange}
+            />
+          </Suspense>
         </Form.Group>
 
         <Form.Group>
           <Form.Label>
-            <span>Join a ... </span>
-            <FontAwesomeIcon icon="camera" size="2x" />
+            <span>Add a ... </span>
+            <FaCameraRetro size={24} /> ?
+            {/* <FontAwesomeIcon icon="camera" size="2x" /> */}
             <Form.File
               type="file"
               name="pic"
@@ -121,12 +128,14 @@ const EventForm = (props) => {
 
         <Row style={{ justifyContent: "center" }}>
           <Button
+            aria-label="Submit form"
             variant="outline-primary"
             type="submit"
             style={{ fontSize: "24px" }}
             //disabled={loading}
           >
-            <FontAwesomeIcon icon="paper-plane" /> Submit
+            <FaPaperPlane size={24} />
+            {/* <FontAwesomeIcon icon="paper-plane" /> Submit */}
           </Button>
         </Row>
       </Form>

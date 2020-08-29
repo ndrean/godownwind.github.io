@@ -1,11 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { Container } from "react-bootstrap";
+import React, { useState, useEffect, Suspense } from "react";
 
-import CardList from "./CardList";
+//import CardList from "./CardList";
 import urlBack from "../helpers/urlBack";
 import MyNavBar from "./MyNavBar";
 
 import "../index.css";
+
+const LazyCardList = React.lazy(() => import("./CardList"));
+const options = {
+  method: "GET",
+  headers: new Headers({
+    "Content-Type": "application/json",
+  }),
+};
 
 function App() {
   console.log("__App__");
@@ -15,6 +22,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [jwtToken, setJwtToken] = useState("");
   const [fbConfig, setFbConfing] = useState("");
+  const [CLCreds, setCLCreds] = useState("");
 
   const handleAddUser = (currentUser) => {
     setUser(currentUser);
@@ -24,8 +32,8 @@ function App() {
   };
 
   // fetch Facebook appID from backend, in ENV variable
-  useEffect(() => {
-    fetch(urlBack + "/fbParams")
+  useEffect((user) => {
+    fetch(urlBack + "/fbParams", options)
       .then((res) => res.json())
       .then((res) =>
         setFbConfing({
@@ -38,15 +46,42 @@ function App() {
       );
   }, []);
 
+  useEffect((user) => {
+    fetch(urlBack + "/CLParams", options)
+      .then((res) => res.json())
+      .then((res) => {
+        console.log(res);
+        setCLCreds(res);
+      });
+  }, []);
+
+  async function networkFirst(req, mycache) {
+    const cache = await caches.open(mycache);
+    try {
+      const fresh = await fetch(req);
+      cache.put(req, fresh.clone(req));
+      return fresh;
+    } catch (e) {
+      const cachedResponse = await cache.match(req);
+      return cachedResponse;
+    }
+  }
+
   // fetch Events from db
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
+      // const query = window.addEventListener('fetch', e=> {
+      //   const req = e.request;
+      //   e.respondiWith(networkFirst(urlBack + "/events", "events-cache"))
+      //   .then(res => setEvents(res))
+      // })
+
+      const req = new Request(urlBack + "/events", options);
       try {
-        const responseEvents = await fetch(urlBack + "/events");
-        if (responseEvents.ok) {
-          return await responseEvents.json();
-        }
+        networkFirst(req, "events-cache")
+          .then((res) => res.json())
+          .then((res) => setEvents(res));
       } catch (err) {
         setEvents(null);
         throw new Error(err);
@@ -62,10 +97,14 @@ function App() {
     async function fetchData() {
       setLoading(true);
       try {
-        const responseUsers = await fetch(urlBack + "/users");
-        if (responseUsers.ok) {
-          return await responseUsers.json();
-        }
+        const responseUsers = await fetch(urlBack + "/users", options);
+        const usersCache = await caches.open("users-cache");
+        usersCache.put(urlBack + "/users", responseUsers.clone(responseUsers));
+        return await responseUsers.json();
+        // const responseUsers = await fetch(urlBack + "/users", options);
+        // if (responseUsers.ok) {
+        //   return await responseUsers.json();
+        // }
       } catch (err) {
         setUsers(null);
         throw new Error(err);
@@ -119,17 +158,20 @@ function App() {
         user={user}
       />
       {loading ? <p>Loading...</p> : ""}
-      {!loading ? <Container /> : ""}
-
-      <CardList
-        user={user}
-        users={users}
-        events={events}
-        token={jwtToken}
-        onhandleRemoveEvent={handleRemoveEvent}
-        onhandleAddEvent={handleAddEvent}
-        onhandleModifyEvent={handleModifyEvent}
-      />
+      {!loading && (
+        <Suspense fallback={<span>Loading...</span>}>
+          <LazyCardList
+            user={user}
+            users={users}
+            events={events}
+            token={jwtToken}
+            onhandleRemoveEvent={handleRemoveEvent}
+            onhandleAddEvent={handleAddEvent}
+            onhandleModifyEvent={handleModifyEvent}
+            clSecret={CLCreds}
+          />
+        </Suspense>
+      )}
     </>
   );
 }

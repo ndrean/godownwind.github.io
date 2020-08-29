@@ -1,8 +1,10 @@
 import React from "react";
 import { Container, Row, Card, Button } from "react-bootstrap";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+//import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FaEdit, FaTrashAlt } from "react-icons/fa";
+
+import backimage from "../assets/beach2.webp";
 
 function CardItem({ event, ...props }) {
   return (
@@ -11,9 +13,10 @@ function CardItem({ event, ...props }) {
         <Card border="primary" key={props.key}>
           <Card.Img
             variant="top"
-            src={event.directCLurl || require("../assets/pointreyes.jpg")}
-            alt="Card image"
-            style={{ height: "270px", opacity: "0.6" }}
+            loading="lazy"
+            src={event.directCLurl || backimage}
+            alt="background image"
+            style={{ height: "270px", width: "330px", opacity: "0.6" }}
           />
           <Card.ImgOverlay>
             <Card.Title>{event.itinary.date}</Card.Title>
@@ -32,16 +35,18 @@ function CardItem({ event, ...props }) {
                 variant="outline-danger"
                 onClick={props.onhandleRemove}
                 style={{ fontSize: "15px", margin: "15px" }}
+                aria-label="delete"
               >
-                <FontAwesomeIcon icon={faTrash} size="2x" />
+                <FaTrashAlt size={28} />
               </Button>
 
               <Button
                 variant="outline-dark"
                 onClick={props.onhandleEdit}
                 style={{ fontSize: "15px", margin: "10px" }}
+                aria-label="edit"
               >
-                <FontAwesomeIcon icon={faEdit} size="2x" />
+                <FaEdit size={28} />
               </Button>
             </Card.Footer>
           </Card.ImgOverlay>

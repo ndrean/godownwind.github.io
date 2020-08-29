@@ -1,8 +1,10 @@
-import React from "react";
-import ReactModalLogin from "react-modal-login";
+import React, { Suspense } from "react";
+//import ReactModalLogin from "react-modal-login";
 import Button from "react-bootstrap/Button";
 
 import urlBack from "../helpers/urlBack";
+
+const LazyReactModalLogin = React.lazy(() => import("react-modal-login"));
 
 function LoginForm({ user, ...props }) {
   // console.log("__form__");
@@ -163,6 +165,7 @@ fields=id,name,email,picture.width(640).height(640)`);
               if (getUserToken.ok) {
                 console.log("** updated in db, waiting for mail confirmation");
                 const { jwt } = await getUserToken.json();
+                console.log(jwt);
 
                 // check in db if email_confirmed with the token
                 const getCurrentUser = await fetch(urlBack + "/profile", {
@@ -208,6 +211,7 @@ fields=id,name,email,picture.width(640).height(640)`);
         if (getUserToken.ok) {
           // need to have mail checked to enter
           const { jwt } = await getUserToken.json();
+          console.log(jwt);
           const getCurrentUser = await fetch(urlBack + "/profile", {
             headers: { authorization: "Bearer " + jwt },
           });
@@ -260,6 +264,7 @@ fields=id,name,email,picture.width(640).height(640)`);
   return (
     <>
       <Button
+        name="open"
         onClick={openModal}
         hidden={loggedIn}
         style={{
@@ -277,6 +282,7 @@ fields=id,name,email,picture.width(640).height(640)`);
 
       {user && (
         <Button
+          name="login out"
           onClick={() => logOut()}
           style={{
             padding: "5px",
@@ -291,76 +297,78 @@ fields=id,name,email,picture.width(640).height(640)`);
       )}
 
       {props.fbConfig && (
-        <ReactModalLogin
-          visible={showModal}
-          onCloseModal={closeModal}
-          loading={loading}
-          error={error}
-          initialTab={"login"}
-          loginError={{ label: "Couldn't sign in, please try again 1" }}
-          registerError={{ label: "Couldn't sign up, please try again 2" }}
-          startLoading={startLoading}
-          finishLoading={finishLoading}
-          providers={{
-            facebook: {
-              config: props.fbConfig,
-              onLoginSuccess: onLoginSuccess,
-              onLoginFail: onLoginFail,
-              label: "Facebook login",
-            },
-          }}
-          separator={{ label: "or" }}
-          form={{
-            onLogin: onLogin,
-            onRegister: onRegister,
-            loginBtn: {
-              label: "Sign in",
-            },
-            registerBtn: {
-              label: "Sign up",
-            },
-            loginInputs: [
-              {
-                containerClass: "RML-form-group",
-                label: "Email",
-                type: "email",
-                inputClass: "RML-form-control",
-                id: "email",
-                name: "email",
-                placeholder: "Email",
+        <Suspense fallback={<span></span>}>
+          <LazyReactModalLogin
+            visible={showModal}
+            onCloseModal={closeModal}
+            loading={loading}
+            error={error}
+            initialTab={"login"}
+            loginError={{ label: "Couldn't sign in, please try again 1" }}
+            registerError={{ label: "Couldn't sign up, please try again 2" }}
+            startLoading={startLoading}
+            finishLoading={finishLoading}
+            providers={{
+              facebook: {
+                config: props.fbConfig,
+                onLoginSuccess: onLoginSuccess,
+                onLoginFail: onLoginFail,
+                label: "Facebook login",
               },
-              {
-                containerClass: "RML-form-group",
-                label: "Password",
-                type: "password",
-                inputClass: "RML-form-control",
-                id: "password",
-                name: "password",
-                placeholder: "Password",
+            }}
+            separator={{ label: "or" }}
+            form={{
+              onLogin: onLogin,
+              onRegister: onRegister,
+              loginBtn: {
+                label: "Sign in",
               },
-            ],
-            registerInputs: [
-              {
-                containerClass: "RML-form-group",
-                label: "Email",
-                type: "email",
-                inputClass: "RML-form-control",
-                id: "email",
-                name: "email",
-                placeholder: "Email",
+              registerBtn: {
+                label: "Sign up",
               },
-              {
-                containerClass: "RML-form-group",
-                label: "Password",
-                type: "password",
-                inputClass: "RML-form-control",
-                id: "password",
-                name: "password",
-                placeholder: "Password",
-              },
-            ],
-          }}
-        />
+              loginInputs: [
+                {
+                  containerClass: "RML-form-group",
+                  label: "Email",
+                  type: "email",
+                  inputClass: "RML-form-control",
+                  id: "email",
+                  name: "email",
+                  placeholder: "Email",
+                },
+                {
+                  containerClass: "RML-form-group",
+                  label: "Password",
+                  type: "password",
+                  inputClass: "RML-form-control",
+                  id: "password",
+                  name: "password",
+                  placeholder: "Password",
+                },
+              ],
+              registerInputs: [
+                {
+                  containerClass: "RML-form-group",
+                  label: "Email",
+                  type: "email",
+                  inputClass: "RML-form-control",
+                  id: "email",
+                  name: "email",
+                  placeholder: "Email",
+                },
+                {
+                  containerClass: "RML-form-group",
+                  label: "Password",
+                  type: "password",
+                  inputClass: "RML-form-control",
+                  id: "password",
+                  name: "password",
+                  placeholder: "Password",
+                },
+              ],
+            }}
+          />
+        </Suspense>
       )}
     </>
   );

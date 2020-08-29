@@ -14,7 +14,11 @@ function EventModal(props) {
       {/* the form goes into the body as props.children */}
       <Modal.Body>{props.children}</Modal.Body>
       <Modal.Footer>
-        <Button variant="outline-secondary" onClick={props.onhandleClose}>
+        <Button
+          name="close"
+          variant="outline-secondary"
+          onClick={props.onhandleClose}
+        >
           Close
         </Button>
       </Modal.Footer>

@@ -6,34 +6,6 @@ import App from "./components/App";
 
 import * as serviceWorker from "./serviceWorker";
 
-import { library } from "@fortawesome/fontawesome-svg-core";
-import {
-  faTrash,
-  faEdit,
-  faInfoCircle,
-  faPlusSquare,
-  faCheck,
-  faBell,
-  faShare,
-  faPaperPlane,
-  faCamera,
-  faGlobeAmericas,
-  faSignInAlt,
-} from "@fortawesome/free-solid-svg-icons";
-library.add(
-  faTrash,
-  faEdit,
-  faInfoCircle,
-  faPlusSquare,
-  faCheck,
-  faBell,
-  faShare,
-  faPaperPlane,
-  faCamera,
-  faGlobeAmericas,
-  faSignInAlt
-);
-
 ReactDOM.render(
   // <React.StrictMode>
   <App />,

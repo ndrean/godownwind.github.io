@@ -7,8 +7,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-//import { faShare, faSignInAlt } from "@fortawesome/free-solid-svg-icons";
+import { FaSignInAlt, FaShare } from "react-icons/fa";
 
 function Details(props) {
   // console.log("*details*");
@@ -16,8 +15,12 @@ function Details(props) {
 
   return (
     <>
-      <Button variant="outline-primary" onClick={props.onhandleShowDetail}>
-        <FontAwesomeIcon icon="sign-in-alt" size="2x" />
+      <Button
+        variant="outline-primary"
+        onClick={props.onhandleShowDetail}
+        aria-label="show details"
+      >
+        <FaSignInAlt size={28} />
       </Button>
       <Modal
         show={props.modalId === props.index}
@@ -64,13 +67,19 @@ function Details(props) {
             variant="primary"
             onClick={props.onhandlePush}
             disabled={props.checkUser}
+            aria-label="participate"
             // {props.onCheckUserDemand}
           >
-            <FontAwesomeIcon icon="share" /> Ask to participate
+            <FaShare />
+            Ask to participate
           </Button>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={props.onhandleCloseDetail}>
+          <Button
+            name="close modal"
+            variant="secondary"
+            onClick={props.onhandleCloseDetail}
+          >
             Close
           </Button>
         </Modal.Footer>
