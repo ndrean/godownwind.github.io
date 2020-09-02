@@ -1,15 +1,15 @@
 import React, { useState, Suspense } from "react";
 
-import { Container, Row, Button } from "react-bootstrap";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Button from "react-bootstrap/Button";
 
-//import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FaCheck } from "react-icons/fa";
 
 import CardItem from "./CardItem";
-//import Details from "./Details";
 
 import urlBack from "../helpers/urlBack";
-//import EventModal from "./EventModal";
+
 import EventForm from "./EventForm";
 import fetchModif from "../helpers/fetchModif"; // returns data after PATCH or POST depending upon endpoint
 import cloudName from "../helpers/cloudName"; // for Cloudinary
@@ -376,7 +376,7 @@ function CardList({ user, users, events, ...props }) {
         </Button>
 
         {!loading && (
-          <Suspense fallback={<span>Loading...</span>}>
+          <Suspense fallback={<span>Loading 4...</span>}>
             <LazyEventModal show={show && !loading} onhandleClose={handleClose}>
               {/* this child goes into the body of the modal */}
 
@@ -402,32 +402,35 @@ function CardList({ user, users, events, ...props }) {
 
       <br />
 
-      {events &&
-        events.map((event, index) => {
-          return (
-            <CardItem
-              key={event.id}
-              event={event}
-              onhandleRemove={(e) => handleRemove(e, event)}
-              onhandleEdit={() => handleEdit(event)}
-            >
-              <Suspense fallback={<span>Loading...</span>}>
-                <LazyDetails
-                  event={event}
-                  index={index}
-                  modalId={modalId}
-                  onhandleShowDetail={() => handleShowDetail(index)}
-                  onhandlePush={() => handlePush(index, modalId, event)}
-                  onhandleCloseDetail={() => handleCloseDetail(index)}
-                  checkUser={checkUser}
-                  // onCheckUserDemand={() =>
-                  //   checkUserDemand(index, modalId, event)
-                  // }
-                />
-              </Suspense>
-            </CardItem>
-          );
-        })}
+      {events
+        ? events.map((event, index) => {
+            return (
+              <CardItem
+                key={event.id}
+                event={event}
+                onhandleRemove={(e) => handleRemove(e, event)}
+                onhandleEdit={() => handleEdit(event)}
+              >
+                <Suspense fallback={<span>Loading...</span>}>
+                  <LazyDetails
+                    event={event}
+                    index={index}
+                    cloudName={cloudName}
+                    modalId={modalId}
+                    publicID={publicID}
+                    onhandleShowDetail={() => handleShowDetail(index)}
+                    onhandlePush={() => handlePush(index, modalId, event)}
+                    onhandleCloseDetail={() => handleCloseDetail(index)}
+                    checkUser={checkUser}
+                    // onCheckUserDemand={() =>
+                    //   checkUserDemand(index, modalId, event)
+                    // }
+                  />
+                </Suspense>
+              </CardItem>
+            );
+          })
+        : null}
     </Container>
   );
 }

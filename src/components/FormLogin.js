@@ -1,18 +1,21 @@
-import React, { Suspense } from "react";
+import React, { lazy, Suspense, useState, useContext } from "react";
 //import ReactModalLogin from "react-modal-login";
 import Button from "react-bootstrap/Button";
 
 import urlBack from "../helpers/urlBack";
+import { UserContext } from "./UserContext";
 
-const LazyReactModalLogin = React.lazy(() => import("react-modal-login"));
+const LazyReactModalLogin = lazy(() => import("react-modal-login"));
 
 function LoginForm({ user, ...props }) {
   // console.log("__form__");
-  const [showModal, setShowModal] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState(null);
-  const [loggedIn, setLoggedIn] = React.useState(false);
-  const [result, setResult] = React.useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [result, setResult] = useState("");
+
+  const [userData, setUserData] = useContext(UserContext);
 
   function openModal() {
     setShowModal(true);
@@ -52,6 +55,7 @@ function LoginForm({ user, ...props }) {
     localStorage.setItem("user", user.email);
     //alert(`Welcome ${user.email}`);
     props.onhandleAddUser(user);
+    setUserData({ email: user.email, jwt });
   }
 
   async function onLoginSuccess(method, response) {
@@ -268,13 +272,13 @@ fields=id,name,email,picture.width(640).height(640)`);
         onClick={openModal}
         hidden={loggedIn}
         style={{
-          padding: "5px",
+          padding: "3px",
           margin: "auto",
           border: "none",
           backgroundColor: "#1666C5", //"#3b5998",
           color: "white",
           fontWeight: "bold",
-          fontSize: "18px",
+          fontSize: "16px",
         }}
       >
         Connect
@@ -285,11 +289,13 @@ fields=id,name,email,picture.width(640).height(640)`);
           name="login out"
           onClick={() => logOut()}
           style={{
-            padding: "5px",
+            padding: "3px",
             margin: "auto",
+            width: "100px",
             border: "none",
             backgroundColor: "#1666C5",
             color: "white",
+            fontSize: "8px",
           }}
         >
           {user.email}

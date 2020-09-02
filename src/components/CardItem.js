@@ -1,7 +1,12 @@
 import React from "react";
-import { Container, Row, Card, Button } from "react-bootstrap";
 
-//import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+// import { Image as CLImage } from "cloudinary-react";
+
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
+import Card from "react-bootstrap/Card";
+import Button from "react-bootstrap/Button";
+
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
 
 import backimage from "../assets/beach2.webp";
@@ -11,6 +16,7 @@ function CardItem({ event, ...props }) {
     <Container>
       <Row>
         <Card border="primary" key={props.key}>
+          {/* <CLImage cloudname={props.cloudName} publicID={props.publicID} width="330" height="270" crop="scale" alt="background image" loading="lazy"/> */}
           <Card.Img
             variant="top"
             loading="lazy"

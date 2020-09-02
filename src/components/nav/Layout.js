@@ -1,12 +1,11 @@
-import React, { useState, useEffect, Suspense } from "react";
-
-//import CardList from "./CardList";
-import urlBack from "../helpers/urlBack";
-import MyNavBar from "./nav/MyNavBar";
-
-import "../index.css";
-
-const LazyCardList = React.lazy(() => import("./CardList"));
+import React, { useState, useEffect } from "react";
+import Container from "react-bootstrap/Container";
+// import Row from "react-bootstrap/Row";
+//import App from "../../index.js";
+import MyNavBar from "./MyNavBar";
+import { PositionProvider } from "./PositionContext";
+import { UserProvider } from "./../UserContext";
+import urlBack from "../../helpers/urlBack";
 
 const options = {
   method: "GET",
@@ -15,24 +14,18 @@ const options = {
   }),
 };
 
-function App() {
-  console.log("__App__");
+function Layout({ children }) {
+  const [user, setUser] = useState("");
   const [users, setUsers] = useState("");
   const [events, setEvents] = useState("");
-  const [user, setUser] = useState("");
   const [loading, setLoading] = useState(false);
   const [jwtToken, setJwtToken] = useState("");
   const [fbConfig, setFbConfing] = useState("");
-  const [CLCreds, setCLCreds] = useState("");
 
-  const handleAddUser = (currentUser) => {
-    setUser(currentUser);
-    if (!users.find((user) => user.email === currentUser.email)) {
-      setUsers((prev) => [...prev, currentUser]);
-    }
-  };
+  function handleToken(value) {
+    setJwtToken(value);
+  }
 
-  // fetch Facebook appID from backend, in ENV variable
   useEffect(() => {
     fetch(urlBack + "/fbParams", options)
       .then((res) => res.json())
@@ -45,15 +38,6 @@ function App() {
           scope: "email",
         })
       );
-  }, []);
-
-  useEffect((user) => {
-    fetch(urlBack + "/CLParams", options)
-      .then((res) => res.json())
-      .then((res) => {
-        console.log(res);
-        setCLCreds(res);
-      });
   }, []);
 
   async function networkFirst(req, mycache) {
@@ -118,9 +102,12 @@ function App() {
     });
   }, [user]);
 
-  function handleToken(value) {
-    setJwtToken(value);
-  }
+  const handleAddUser = (currentUser) => {
+    setUser(currentUser);
+    if (!users.find((user) => user.email === currentUser.email)) {
+      setUsers((prev) => [...prev, currentUser]);
+    }
+  };
 
   function removeToken() {
     setJwtToken("");
@@ -149,19 +136,15 @@ function App() {
   }
 
   return (
-    <>
-      <MyNavBar
-        onhandleToken={handleToken}
-        onhandleAddUser={handleAddUser}
-        onRemoveToken={removeToken}
-        onSettingUser={settingUser}
-        fbConfig={fbConfig}
-        user={user}
-      />
-      {loading ? <p>Loading 1...</p> : ""}
-      {!loading && (
-        <Suspense fallback={<span>Loading 2...</span>}>
-          <LazyCardList
+    <Container>
+      <PositionProvider>
+        <UserProvider>
+          <MyNavBar
+            onhandleToken={handleToken}
+            onhandleAddUser={handleAddUser}
+            onRemoveToken={removeToken}
+            onSettingUser={settingUser}
+            fbConfig={fbConfig}
             user={user}
             users={users}
             events={events}
@@ -169,12 +152,12 @@ function App() {
             onhandleRemoveEvent={handleRemoveEvent}
             onhandleAddEvent={handleAddEvent}
             onhandleModifyEvent={handleModifyEvent}
-            clSecret={CLCreds}
           />
-        </Suspense>
-      )}
-    </>
+          {children}
+        </UserProvider>
+      </PositionProvider>
+    </Container>
   );
 }
 
-export default App;
+export default React.memo(Layout);

@@ -1,12 +1,16 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+# Caching
 
-.
+<https://jakearchibald.com/2016/caching-best-practices/>
+
+< <!-- https://web.dev/uses-rel-preconnect/?utm_source=lighthouse&utm_medium=devtools -->
+
+>
 
 ### Code Splitting: Smaller payloads, reduce JS bundle
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+<https://create-react-app.dev/docs/analyzing-the-bundle-size/>
 
 <https://www.kaliop.com/fr/react-js-reduire-son-bundle-javascript-avec-du-code-splitting/>
 
@@ -42,15 +46,14 @@ const LazyComponent = React.lazy(()=> import('./something'))
 </Suspense>
 ```
 
-### Analyzing the Bundle Size
+# Serving build
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+With the conflict of Ruby's `serve', we use `static-server` to run the build file from the folder '\build`.
+<https://www.npmjs.com/package/static-server>
 
-### Making a Progressive Web App
+# PWA
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
+Works only in 'build' mode.
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
 
@@ -61,3 +64,20 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 ### `yarn build` fails to minify
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+
+# Cloudinary
+
+<https://github.com/cloudinary/cloudinary-react>
+<https://cloudinary.com/documentation/react_integration>
+
+Run 'react-starter-kit' generated from <https://github.com/kriasoft/react-starter-kit/blob/master/docs/getting-started.md> to get example.
+
+# Misc
+
+## Sync props
+
+<https://learnwithparam.com/blog/how-to-pass-props-to-state-properly-in-react-hooks/>
+
+## Pass props to route component
+
+<https://learnwithparam.com/blog/how-to-pass-props-in-react-router/>

@@ -86,7 +86,7 @@ const EventForm = (props) => {
         </Form.Group>
         <Form.Group controlId="ControlKiters">
           <Form.Label>Participants</Form.Label>
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<div>Loading 8...</div>}>
             <LazySelect
               defaultValue={defaultOpt}
               isMulti
