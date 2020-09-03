@@ -36,21 +36,26 @@ const html = `<p>
     </p>`;
 
 export default function MyMap(props) {
+  console.log("_map_");
   const [gps] = React.useContext(PositionContext);
 
   const [startPoint, setStartPoint] = useState("");
   const [endPoint, setEndPoint] = useState("");
   const [date, setDate] = useState("");
+  const [tripLength, setTripLength] = useState(0);
 
   const mapRef = useRef(null);
   const markersLayer = useRef(L.layerGroup([]));
 
   const [userData] = React.useContext(UserContext);
+  // console.log("user", userData);
+
+  let startEnd = [];
 
   let itinary = "";
 
   useEffect(() => {
-    console.log("DRAW");
+    console.log("_draw map_");
     const center = gps.Lat ? [gps.Lat, gps.Lng] : [50, 0];
     mapRef.current = L.map("map", {
       center: center,
@@ -70,26 +75,25 @@ export default function MyMap(props) {
   }, [gps]);
 
   useEffect(() => {
+    console.log("_ctrl_");
     const searchControl = new esriGeocode.geosearch({
       expanded: true,
       zoomToResult: true,
       position: "topright",
       placeholder: "Search City / address",
-      title: "Location Search",
+      title: "Search",
       collapseAfterResult: true,
       allowMultipleResults: true,
     }).addTo(mapRef.current);
     // https://github.com/Esri/esri-leaflet-geocoder
 
-    //const results = L.layerGroup().addTo(mapRef.current);
-
     searchControl.on("results", (e) => {
       if (!e.results) {
-        alert("Unfound");
+        alert("Not found");
         return;
       }
-      const gps = e.latlng;
-      const resultMarker = marker(gps, { icon: kiteIcon }).addTo(
+      const coords = e.latlng;
+      const resultMarker = marker(coords, { icon: kiteIcon }).addTo(
         markersLayer.current
       );
       const place = e.results[0].text;
@@ -98,16 +102,17 @@ export default function MyMap(props) {
       const popup = resultMarker.bindPopup(content);
       popup.openPopup();
       if (popup) {
-        handlePopupPlace(popup, place, gps, resultMarker);
+        handlePopupPlace(popup, place, coords, resultMarker);
       }
     });
   }, []);
 
-  const reverseGeocode = React.useCallback((gps, mymarker) => {
+  const reverseGeocode = React.useCallback((coords, mymarker) => {
+    console.log("_reverse_");
     esriGeocode
       .geocodeService()
       .reverse()
-      .latlng(gps)
+      .latlng(coords)
       .run((error, result) => {
         if (error) {
           alert("not found");
@@ -129,7 +134,7 @@ export default function MyMap(props) {
           `;
         const popup = mymarker.bindPopup(content);
         popup.openPopup();
-        return handlePopupPlace(popup, place, gps, mymarker);
+        return handlePopupPlace(popup, place, coords, mymarker);
       });
   }, []);
 
@@ -143,7 +148,7 @@ export default function MyMap(props) {
     });
   }, [reverseGeocode]);
 
-  function handlePopupPlace(popup, place, gps, mymarker) {
+  function handlePopupPlace(popup, place, coords, mymarker) {
     //catch the previous checked radio button if any
     let preValue = "";
     popup.on("popupopen", () => {
@@ -165,29 +170,46 @@ export default function MyMap(props) {
           if (preValue === "end") {
             setEndPoint("");
           }
+          startEnd = { ...startEnd, start: coords };
           setStartPoint((prev) => ({
             ...prev,
             start: place,
-            start_gps: gps,
+            start_gps: coords,
             id: getId,
           }));
         } else if (getValue === "end") {
           if (preValue === "start") {
             setStartPoint("");
           }
+          startEnd = { ...startEnd, end: coords };
+          console.log(startEnd);
           setEndPoint((prev) => ({
             ...prev,
             end: place,
-            end_gps: gps,
+            end_gps: coords,
             id: getId,
           }));
         } else if (getValue === "remove") {
           markersLayer.current.removeLayer(mymarker);
           if (preValue === "start") {
+            const { start, ...rest } = startEnd;
+            startEnd = rest;
             setStartPoint("");
           } else if (preValue === "end") {
+            const { end, ...rest } = startEnd;
+            startEnd = rest;
             setEndPoint("");
           }
+        }
+
+        const val = Object.values(startEnd);
+        const keys = Object.keys(startEnd);
+        if (keys.includes("start") && keys.includes("end")) {
+          setTripLength(
+            (L.latLng(val[0]).distanceTo(L.latLng(val[1])) / 1000).toFixed(0)
+          );
+        } else {
+          setTripLength(0);
         }
         return;
       }
@@ -226,8 +248,8 @@ export default function MyMap(props) {
   }, []);
 
   // display the events
-  React.useEffect(() => {
-    console.log("_fetch Events_");
+  useEffect(() => {
+    console.log("_Events_");
     const markersLayerRef = markersLayer.current;
     fetch(urlBack + "/events")
       .then((res) => {
@@ -244,6 +266,7 @@ export default function MyMap(props) {
         L.geoJSON(data, {
           onEachFeature: onEachFeature,
         }).addTo(mapRef.current);
+
         markersLayerRef.addTo(mapRef.current);
       });
 
@@ -251,7 +274,7 @@ export default function MyMap(props) {
       console.log("clear");
       markersLayerRef.clearLayers();
     };
-  }, [onEachFeature]); //props.esvents
+  }, [onEachFeature]); //props.events
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -261,14 +284,12 @@ export default function MyMap(props) {
     if (!startPoint || !endPoint)
       return window.alert("Please select two points");
 
-    const distance =
-      startPoint.start_gps && endPoint.end_gps
-        ? (
-            L.latLng(startPoint.start_gps).distanceTo(
-              L.latLng(endPoint.end_gps)
-            ) / 1000
-          ).toFixed(0)
-        : null;
+    let distance = 0;
+    if (startPoint.start_gps && endPoint.end_gps)
+      distance = (
+        L.latLng(startPoint.start_gps).distanceTo(L.latLng(endPoint.end_gps)) /
+        1000
+      ).toFixed(0);
 
     itinary = {
       date: date,
@@ -331,6 +352,9 @@ export default function MyMap(props) {
   return (
     <Container fluid>
       <p>{props.warning}</p>
+      <p>
+        GeolocContext: {gps.Lat}, {gps.Lng}
+      </p>
       <p>UserContext: {userData.email}</p>
 
       <Suspense fallback={<span>Loading...</span>}>
@@ -338,49 +362,11 @@ export default function MyMap(props) {
           onhandleSubmit={handleSubmit}
           startPoint={startPoint}
           endPoint={endPoint}
-          data={date}
+          date={date}
+          distance={tripLength}
           onhandleDate={handleDate}
         />
       </Suspense>
-      {/* <Form onSubmit={handleSubmit}>
-        <Form.Group controlId="formPlaintextItinary">
-          <Form.Label>Starting point:</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows="2"
-            readOnly
-            required
-            value={startPoint ? startPoint.start : ""}
-          />
-        </Form.Group>
-
-        <Form.Group controlId="formPlaintextPassword">
-          <Form.Label>Ending point:</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows="2"
-            readOnly
-            required
-            value={endPoint ? endPoint.end : ""}
-          />
-        </Form.Group>
-        <Form.Control
-          type="date"
-          value={date || ""}
-          name="date"
-          required
-          onChange={handleDate}
-          isInvalid={!date}
-        />
-        <Form.Control.Feedback type="invalid">{!date}</Form.Control.Feedback>
-        <br />
-        <Form.Group style={{ display: "flex", justifyContent: "center" }}>
-          <Button variant="primary" type="submit" size="lg">
-            Submit
-          </Button>
-        </Form.Group>
-      </Form> */}
-
       <br />
 
       <Row>
@@ -390,8 +376,7 @@ export default function MyMap(props) {
         Click on the map or use the "Search City / address" box to define a
         point, and assign 'start' or 'end' or remove it. Once you defined the
         event, you can invite people by editing the event (the{" "}
-        <FaAlignJustify size={10} /> menu ). You can only delete the event
-        there.
+        <FaAlignJustify size={10} /> menu ). You can delete the event there.
       </p>
     </Container>
   );

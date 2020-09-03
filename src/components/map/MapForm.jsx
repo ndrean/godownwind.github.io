@@ -6,7 +6,7 @@ import Button from "react-bootstrap/Button";
 export default function MapForm(props) {
   return (
     <Form onSubmit={props.onhandleSubmit}>
-      <Form.Group controlId="formPlaintextItinary">
+      <Form.Group controlId="formPlaintextStart">
         <Form.Label>Starting point:</Form.Label>
         <Form.Control
           as="textarea"
@@ -17,8 +17,7 @@ export default function MapForm(props) {
         />
       </Form.Group>
 
-      <Form.Group controlId="formPlaintextPassword">
-        <Form.Label>Ending point:</Form.Label>
+      <Form.Group controlId="formPlaintextEnd">
         <Form.Control
           as="textarea"
           rows="2"
@@ -27,6 +26,17 @@ export default function MapForm(props) {
           value={props.endPoint ? props.endPoint.end : ""}
         />
       </Form.Group>
+
+      <Form.Group controlId="formPlaintextDistance">
+        <Form.Label>Calculated distance:</Form.Label>
+        <Form.Control
+          type="number"
+          value={props.distance}
+          name="trip length"
+          readOnly
+        />
+      </Form.Group>
+
       <Form.Control
         type="date"
         value={props.date || ""}
@@ -35,6 +45,7 @@ export default function MapForm(props) {
         onChange={props.onhandleDate}
         isInvalid={!props.date}
       />
+
       <Form.Control.Feedback type="invalid">
         {!props.date}
       </Form.Control.Feedback>

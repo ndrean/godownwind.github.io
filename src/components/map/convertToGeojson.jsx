@@ -1,5 +1,3 @@
-//import L, { coordsToLatLng } from "leaflet";
-
 export default function convertToGeojson(data) {
   const geojsonElt = {
     type: "Feature",
@@ -18,6 +16,7 @@ export default function convertToGeojson(data) {
   };
 
   const geojson = [];
+
   if (data && data.length > 0) {
     data.forEach((d) => {
       if (d.itinary.start_gps || d.itinary_end_gps) {

@@ -39,12 +39,12 @@ const options = {
   },
 };
 
-let actionProps = "";
 function getProps(path) {
+  let actionProps = "";
   if (path === "/") {
     actionProps = { nb: "5", bool: true };
   } else if (path === "/Map") {
-    actionProps = "prop by Universal Router";
+    actionProps = "Prop through Universal Route";
   }
   return actionProps;
 }
