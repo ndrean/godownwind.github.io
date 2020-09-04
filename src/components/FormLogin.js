@@ -1,14 +1,14 @@
-import React, { lazy, Suspense, useState, useContext } from "react";
-//import ReactModalLogin from "react-modal-login";
+import React, { useState, useContext } from "react";
 import Button from "react-bootstrap/Button";
 
-import urlBack from "../helpers/urlBack";
 import { UserContext } from "./UserContext";
+import urlBack from "../helpers/urlBack";
 
-const LazyReactModalLogin = lazy(() => import("react-modal-login"));
+import ReactModalLogin from "react-modal-login";
+//const LazyReactModalLogin = lazy(() => import("react-modal-login"));
 
-function LoginForm({ user, ...props }) {
-  // console.log("__form__");
+export default React.memo(function LoginForm({ user, ...props }) {
+  console.log("__form__");
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -291,11 +291,11 @@ fields=id,name,email,picture.width(640).height(640)`);
           style={{
             padding: "3px",
             margin: "auto",
-            width: "100px",
+            width: "auto",
             border: "none",
             backgroundColor: "#1666C5",
             color: "white",
-            fontSize: "8px",
+            fontSize: "10px",
           }}
         >
           {user.email}
@@ -303,82 +303,77 @@ fields=id,name,email,picture.width(640).height(640)`);
       )}
 
       {props.fbConfig && (
-        <Suspense fallback={<span></span>}>
-          <LazyReactModalLogin
-            visible={showModal}
-            onCloseModal={closeModal}
-            loading={loading}
-            error={error}
-            initialTab={"login"}
-            loginError={{ label: "Couldn't sign in, please try again 1" }}
-            registerError={{ label: "Couldn't sign up, please try again 2" }}
-            startLoading={startLoading}
-            finishLoading={finishLoading}
-            providers={{
-              facebook: {
-                config: props.fbConfig,
-                onLoginSuccess: onLoginSuccess,
-                onLoginFail: onLoginFail,
-                label: "Facebook login",
+        <ReactModalLogin
+          visible={showModal}
+          onCloseModal={closeModal}
+          loading={loading}
+          error={error}
+          initialTab={"login"}
+          loginError={{ label: "Couldn't sign in, please try again 1" }}
+          registerError={{ label: "Couldn't sign up, please try again 2" }}
+          startLoading={startLoading}
+          finishLoading={finishLoading}
+          providers={{
+            facebook: {
+              config: props.fbConfig,
+              onLoginSuccess: onLoginSuccess,
+              onLoginFail: onLoginFail,
+              label: "Facebook login",
+            },
+          }}
+          separator={{ label: "or" }}
+          form={{
+            onLogin: onLogin,
+            onRegister: onRegister,
+            loginBtn: {
+              label: "Sign in",
+            },
+            registerBtn: {
+              label: "Sign up",
+            },
+            loginInputs: [
+              {
+                containerClass: "RML-form-group",
+                label: "Email",
+                type: "email",
+                inputClass: "RML-form-control",
+                id: "email",
+                name: "email",
+                placeholder: "Email",
               },
-            }}
-            separator={{ label: "or" }}
-            form={{
-              onLogin: onLogin,
-              onRegister: onRegister,
-              loginBtn: {
-                label: "Sign in",
+              {
+                containerClass: "RML-form-group",
+                label: "Password",
+                type: "password",
+                inputClass: "RML-form-control",
+                id: "password",
+                name: "password",
+                placeholder: "Password",
               },
-              registerBtn: {
-                label: "Sign up",
+            ],
+            registerInputs: [
+              {
+                containerClass: "RML-form-group",
+                label: "Email",
+                type: "email",
+                inputClass: "RML-form-control",
+                id: "email",
+                name: "email",
+                placeholder: "Email",
               },
-              loginInputs: [
-                {
-                  containerClass: "RML-form-group",
-                  label: "Email",
-                  type: "email",
-                  inputClass: "RML-form-control",
-                  id: "email",
-                  name: "email",
-                  placeholder: "Email",
-                },
-                {
-                  containerClass: "RML-form-group",
-                  label: "Password",
-                  type: "password",
-                  inputClass: "RML-form-control",
-                  id: "password",
-                  name: "password",
-                  placeholder: "Password",
-                },
-              ],
-              registerInputs: [
-                {
-                  containerClass: "RML-form-group",
-                  label: "Email",
-                  type: "email",
-                  inputClass: "RML-form-control",
-                  id: "email",
-                  name: "email",
-                  placeholder: "Email",
-                },
-                {
-                  containerClass: "RML-form-group",
-                  label: "Password",
-                  type: "password",
-                  inputClass: "RML-form-control",
-                  id: "password",
-                  name: "password",
-                  placeholder: "Password",
-                },
-              ],
-            }}
-          />
-        </Suspense>
+              {
+                containerClass: "RML-form-group",
+                label: "Password",
+                type: "password",
+                inputClass: "RML-form-control",
+                id: "password",
+                name: "password",
+                placeholder: "Password",
+              },
+            ],
+          }}
+        />
       )}
     </>
   );
-}
-
-// export default LoginForm;
-export default React.memo(LoginForm);
+});

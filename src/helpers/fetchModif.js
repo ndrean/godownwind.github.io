@@ -6,7 +6,7 @@ function returnUnauthorized() {
   throw new Error("not authorized");
 }
 
-async function fetchModif({ method, index, body, token }) {
+async function fetchModif({ method, index = "", body, token }) {
   try {
     const query = await fetch(urlBack + "/events/" + index, {
       method: method,

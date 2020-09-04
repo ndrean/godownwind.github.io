@@ -19,7 +19,7 @@ export default function convertToGeojson(data) {
 
   if (data && data.length > 0) {
     data.forEach((d) => {
-      if (d.itinary.start_gps || d.itinary_end_gps) {
+      if (d.itinary.start_gps || d.itinary.end_gps) {
         if (d.itinary.start_gps.length > 1 || d.itinary.end_gps.length > 1) {
           geojson.push({
             ...geojsonElt,

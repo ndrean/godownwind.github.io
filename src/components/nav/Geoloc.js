@@ -1,5 +1,8 @@
 import React from "react";
+import Container from "react-bootstrap/Container";
+import Row from "react-bootstrap/Row";
 import Button from "react-bootstrap/Button";
+
 import { PositionContext } from "./PositionContext";
 
 export default function Geoloc() {
@@ -30,25 +33,30 @@ export default function Geoloc() {
   return (
     <>
       {/* <PositionProvider value={[gps, setGps]}> */}
-      <Button aria-label="gelocalisation" onClick={() => setAccept(true)}>
-        Enable geolocalisation
-      </Button>
-      <br />
-      {accept && gps ? (
-        gps.Lat ? (
-          <>
-            <br />
-            <p>
-              Your position is: Latitude: {gps.Lat} et Longitude: {gps.Lng}
-            </p>
-          </>
-        ) : (
-          <>
-            <br />
-            <p>Geolocalizing...</p>
-          </>
-        )
-      ) : null}
+      <Container>
+        <Row style={{ justifyContent: "center" }}>
+          <Button aria-label="gelocalisation" onClick={() => setAccept(true)}>
+            Enable geolocalisation
+          </Button>
+        </Row>
+
+        {accept && gps ? (
+          gps.Lat ? (
+            <>
+              <br />
+              <p>
+                Your position is: Latitude: {gps.Lat} et Longitude: {gps.Lng}
+              </p>
+            </>
+          ) : (
+            <>
+              <br />
+              <p>Geolocalizing...</p>
+            </>
+          )
+        ) : null}
+      </Container>
+
       {/* </PositionProvider> */}
     </>
   );

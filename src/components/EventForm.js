@@ -17,7 +17,7 @@ const LazySelect = React.lazy(() => import("react-select"));
 //import cloudName from "../config/cloudName";
 
 const EventForm = (props) => {
-  // console.log("_render Form_");
+  console.log("_EventForm_");
   const {
     users,
     participants,

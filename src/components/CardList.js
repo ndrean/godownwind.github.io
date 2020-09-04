@@ -33,7 +33,7 @@ function CardList({ user, users, events, ...props }) {
   const [comment, setComment] = useState("");
   const [checkUser, setCheckUser] = useState(false);
 
-  // console.log("_render CardList_");
+  console.log("_CardList_");
 
   // modal in a list: use index boolean
   const handleCloseDetail = () => {

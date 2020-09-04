@@ -12,6 +12,7 @@ import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import backimage from "../assets/beach2.webp";
 
 function CardItem({ event, ...props }) {
+  console.log("_item_");
   return (
     <Container>
       <Row>
@@ -22,7 +23,7 @@ function CardItem({ event, ...props }) {
             loading="lazy"
             src={event.directCLurl || backimage}
             alt="background image"
-            style={{ height: "270px", width: "330px", opacity: "0.6" }}
+            style={{ height: "270px", width: "300px", opacity: "0.6" }}
           />
           <Card.ImgOverlay>
             <Card.Title>{event.itinary.date}</Card.Title>

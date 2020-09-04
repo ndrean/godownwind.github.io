@@ -1,10 +1,16 @@
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, lazy } from "react";
+
+import { Switch, Route } from "react-router-dom";
 
 //import CardList from "./CardList";
 import urlBack from "../helpers/urlBack";
-import MyNavBar from "./nav/MyNavBar";
+//import MyNavBar from "./nav/MyNavBar";
 
 import "../index.css";
+import Home from "./nav/Home";
+
+const LazyLayout = lazy(() => import("./nav/Layout"));
+const LazyMap = lazy(() => import("./map/MyMap"));
 
 const LazyCardList = React.lazy(() => import("./CardList"));
 
@@ -20,9 +26,10 @@ function App() {
   const [users, setUsers] = useState("");
   const [events, setEvents] = useState("");
   const [user, setUser] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [jwtToken, setJwtToken] = useState("");
-  const [fbConfig, setFbConfing] = useState("");
+  const [fbConfig, setFbConfig] = useState("");
   const [CLCreds, setCLCreds] = useState("");
 
   const handleAddUser = (currentUser) => {
@@ -37,7 +44,7 @@ function App() {
     fetch(urlBack + "/fbParams", options)
       .then((res) => res.json())
       .then((res) =>
-        setFbConfing({
+        setFbConfig({
           appId: res.fb_id,
           cookie: true,
           xfbml: true,
@@ -47,11 +54,10 @@ function App() {
       );
   }, []);
 
-  useEffect((user) => {
+  useEffect(() => {
     fetch(urlBack + "/CLParams", options)
       .then((res) => res.json())
       .then((res) => {
-        console.log(res);
         setCLCreds(res);
       });
   }, []);
@@ -150,7 +156,92 @@ function App() {
 
   return (
     <>
-      <MyNavBar
+      <Switch>
+        <Route
+          exact
+          path="/"
+          render={() => (
+            <Suspense fallback={<span>Loading...</span>}>
+              <LazyLayout
+                onhandleToken={handleToken}
+                onhandleAddUser={handleAddUser}
+                onRemoveToken={removeToken}
+                onSettingUser={settingUser}
+                fbConfig={fbConfig}
+                user={user}
+                users={users}
+                jwtToken={jwtToken}
+              >
+                <Home />
+              </LazyLayout>
+            </Suspense>
+          )}
+        />
+        <Route
+          exact
+          path="/cardlist"
+          render={() => (
+            <Suspense fallback={<span>Loading...</span>}>
+              <LazyLayout
+                onhandleToken={handleToken}
+                onhandleAddEvent={handleAddEvent}
+                onhandleRemoveEvent={handleRemoveEvent}
+                onhandleAddUser={handleAddUser}
+                onRemoveToken={removeToken}
+                onSettingUser={settingUser}
+                fbConfig={fbConfig}
+                user={user}
+                //users={users}
+                token={jwtToken}
+              >
+                <LazyCardList
+                  users={users}
+                  token={jwtToken}
+                  user={user}
+                  events={events}
+                  onhandleAddEvent={handleAddEvent}
+                  onhandleRemoveEvent={handleRemoveEvent}
+                />
+              </LazyLayout>
+            </Suspense>
+          )}
+        />
+        <Route
+          path="/Map"
+          render={() => (
+            <Suspense fallback={<span>Loading...</span>}>
+              <LazyLayout
+                onhandleToken={handleToken}
+                onhandleAddEvent={handleAddEvent}
+                onhandleRemoveEvent={handleRemoveEvent}
+                onhandleAddUser={handleAddUser}
+                onRemoveToken={removeToken}
+                onSettingUser={settingUser}
+                fbConfig={fbConfig}
+                user={user}
+                //users={users}
+                token={jwtToken}
+              >
+                <LazyMap
+                  user={user}
+                  users={users}
+                  token={jwtToken}
+                  events={events}
+                  onhandleUpdateEvents={handleAddEvent}
+                />
+              </LazyLayout>
+            </Suspense>
+          )}
+        />
+      </Switch>
+    </>
+  );
+}
+
+export default App;
+
+{
+  /* <MyNavBar
         onhandleToken={handleToken}
         onhandleAddUser={handleAddUser}
         onRemoveToken={removeToken}
@@ -173,8 +264,6 @@ function App() {
           />
         </Suspense>
       )}
-    </>
-  );
+    </> 
+      */
 }
-
-export default App;

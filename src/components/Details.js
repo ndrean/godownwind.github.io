@@ -10,7 +10,7 @@ import Form from "react-bootstrap/Form";
 import { FaSignInAlt, FaShare } from "react-icons/fa";
 
 function Details(props) {
-  // console.log("*details*");
+  console.log("_details_");
   const { event } = props;
 
   return (

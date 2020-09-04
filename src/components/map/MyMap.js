@@ -16,8 +16,11 @@ import { PositionContext } from "../nav/PositionContext";
 import { UserContext } from "../UserContext";
 
 import convertToGeojson from "./convertToGeojson";
+import fetchModif from "../../helpers/fetchModif";
 
 import urlBack from "../../helpers/urlBack";
+
+const LazyGeoloc = lazy(() => import("../nav/Geoloc"));
 
 const LazyMapForm = lazy(() => import("./MapForm"));
 
@@ -37,6 +40,7 @@ const html = `<p>
 
 export default function MyMap(props) {
   console.log("_map_");
+  // console.log("Map-props", props);
   const [gps] = React.useContext(PositionContext);
 
   const [startPoint, setStartPoint] = useState("");
@@ -93,7 +97,7 @@ export default function MyMap(props) {
         return;
       }
       const coords = e.latlng;
-      const resultMarker = marker(coords, { icon: kiteIcon }).addTo(
+      const resultMarker = marker(coords, { icon: blueIcon }).addTo(
         markersLayer.current
       );
       const place = e.results[0].text;
@@ -149,14 +153,14 @@ export default function MyMap(props) {
   }, [reverseGeocode]);
 
   function handlePopupPlace(popup, place, coords, mymarker) {
-    //catch the previous checked radio button if any
+    //on popup open, catch the state (start/end) of the point if any
     let preValue = "";
     popup.on("popupopen", () => {
       const typeRadio = document.body.querySelectorAll('input[type="radio"]');
       preValue = [...typeRadio].find((t) => t.checked === true);
       if (preValue) preValue = preValue.value;
     });
-
+    // on popup close, update a point to start/end and set state
     popup.on("popupclose", (e) => {
       const getId = L.stamp(e.target); // === e.target._leaflet_id;
       const typeRadio = document.body.querySelectorAll('input[type="radio"]');
@@ -201,7 +205,7 @@ export default function MyMap(props) {
             setEndPoint("");
           }
         }
-
+        // calculate the distance between the 2 inputs
         const val = Object.values(startEnd);
         const keys = Object.keys(startEnd);
         if (keys.includes("start") && keys.includes("end")) {
@@ -250,15 +254,17 @@ export default function MyMap(props) {
   // display the events
   useEffect(() => {
     console.log("_Events_");
+
     const markersLayerRef = markersLayer.current;
-    fetch(urlBack + "/events")
-      .then((res) => {
-        if (!res) {
-          return;
-        } else {
-          return res.json();
-        }
-      })
+    // fetch(urlBack + "/events")
+    //   .then((res) => {
+    //     if (!res) {
+    //       return;
+    //     } else {
+    //       return res.json();
+    //     }
+    //   })
+    Promise.resolve(props.events)
       .then((res) => {
         return convertToGeojson(res);
       })
@@ -274,7 +280,7 @@ export default function MyMap(props) {
       console.log("clear");
       markersLayerRef.clearLayers();
     };
-  }, [onEachFeature]); //props.events
+  }, [onEachFeature, props.events]);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -307,28 +313,22 @@ export default function MyMap(props) {
     }
     // split in the frontend as Rails Postgres doesn't separate the array (instead of plistting in the backend)
     formdata.append(
-      "event[itinary_attributes][start_gps][][0]",
+      "event[itinary_attributes][start_gps][]",
       itinary.start_gps[0]
     );
     formdata.append(
-      "event[itinary_attributes][start_gps][][1]",
+      "event[itinary_attributes][start_gps][]",
       itinary.start_gps[1]
     );
-    formdata.append(
-      "event[itinary_attributes][end_gps][][0]",
-      itinary.end_gps[0]
-    );
-    formdata.append(
-      "event[itinary_attributes][end_gps][][1]",
-      itinary.end_gps[1]
-    );
+    formdata.append("event[itinary_attributes][end_gps][]", itinary.end_gps[0]);
+    formdata.append("event[itinary_attributes][end_gps][]", itinary.end_gps[1]);
 
     // !!!!! no headers "Content-type".. for formdata !!!!!
-    fetch(urlBack + "/events/", {
+    fetchModif({
       method: "POST",
       index: "",
       body: formdata,
-      token: userData.token, //props.token,
+      token: props.user.access_token, //props.token,
     })
       .then((result) => {
         if (result) {
@@ -351,12 +351,14 @@ export default function MyMap(props) {
 
   return (
     <Container fluid>
-      <p>{props.warning}</p>
-      <p>
-        GeolocContext: {gps.Lat}, {gps.Lng}
-      </p>
-      <p>UserContext: {userData.email}</p>
+      <Suspense fallback={<span></span>}>
+        <LazyGeoloc />
+      </Suspense>
 
+      <p>UserContext: {userData.email}</p>
+      <Row>
+        <div id="map"></div>
+      </Row>
       <Suspense fallback={<span>Loading...</span>}>
         <LazyMapForm
           onhandleSubmit={handleSubmit}
@@ -369,9 +371,6 @@ export default function MyMap(props) {
       </Suspense>
       <br />
 
-      <Row>
-        <div id="map"></div>
-      </Row>
       <p style={{ fontSize: "8px" }}>
         Click on the map or use the "Search City / address" box to define a
         point, and assign 'start' or 'end' or remove it. Once you defined the

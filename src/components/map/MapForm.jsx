@@ -11,6 +11,7 @@ export default function MapForm(props) {
         <Form.Control
           as="textarea"
           rows="2"
+          aria-label="start point address"
           readOnly
           required
           value={props.startPoint ? props.startPoint.start : ""}
@@ -18,8 +19,10 @@ export default function MapForm(props) {
       </Form.Group>
 
       <Form.Group controlId="formPlaintextEnd">
+        <Form.Label>Ending point:</Form.Label>
         <Form.Control
           as="textarea"
+          aria-label="end point addresss"
           rows="2"
           readOnly
           required
@@ -31,6 +34,7 @@ export default function MapForm(props) {
         <Form.Label>Calculated distance:</Form.Label>
         <Form.Control
           type="number"
+          aria-label="calculated distance"
           value={props.distance}
           name="trip length"
           readOnly
@@ -41,6 +45,7 @@ export default function MapForm(props) {
         type="date"
         value={props.date || ""}
         name="date"
+        aria-label="date event"
         required
         onChange={props.onhandleDate}
         isInvalid={!props.date}
@@ -51,7 +56,12 @@ export default function MapForm(props) {
       </Form.Control.Feedback>
       <br />
       <Form.Group style={{ display: "flex", justifyContent: "center" }}>
-        <Button variant="primary" type="submit" size="lg">
+        <Button
+          variant="primary"
+          type="submit"
+          size="lg"
+          aria-label="submit event"
+        >
           Submit
         </Button>
       </Form.Group>

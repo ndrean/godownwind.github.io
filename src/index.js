@@ -1,12 +1,15 @@
-import React, { Suspense } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
 
-import "bootstrap/dist/css/bootstrap.min.css";
-//import App from "./components/App";
+import { BrowserRouter } from "react-router-dom";
 
-import UniversalRouter from "universal-router";
-import history from "./components/nav/history";
-import routes from "./components/nav/routes";
+import "bootstrap/dist/css/bootstrap.min.css";
+
+import App from "./components/App";
+
+//import UniversalRouter from "universal-router";
+//import history from "./components/nav/history";
+//import routes from "./components/nav/routes";
 
 import "./index.css";
 
@@ -14,10 +17,11 @@ import * as serviceWorker from "./serviceWorker";
 //import Map from '/components/Map';
 
 //const LazyCardList = React.lazy(() => import("./components/CardList"));
-const LazyLayout = React.lazy(() => import("./components/nav/Layout"));
+//const LazyLayout = React.lazy(() => import("./components/nav/Layout"));
 // const LazyMyNavBar = React.lazy(() => import("./components/nav/MyNavBar"));
-const LazyRouteError = React.lazy(() => import("./components/nav/RouteError"));
+//const LazyRouteError = React.lazy(() => import("./components/nav/RouteError"));
 
+/*
 const options = {
   resolveRoute(context, _) {
     if (typeof context.route.action === "function") {
@@ -66,19 +70,23 @@ async function renderRoute() {
     });
 }
 
+
 // listening for the history changes to the current location
 history.listen(renderRoute);
 history.listen(({ location }) => console.log(`${location.pathname}`));
 
 // initial Rendering for the initial location
 renderRoute(history.location);
+*/
 
-// ReactDOM.render(
-//   // <React.StrictMode>
-//   <App />,
-//   // </React.StrictMode>,
-//   document.getElementById("root")
-// );
+ReactDOM.render(
+  // <React.StrictMode>
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>,
+  // </React.StrictMode>,
+  document.getElementById("root")
+);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

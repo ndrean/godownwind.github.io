@@ -1,17 +1,18 @@
-import React, { Suspense } from "react";
+import React, { Suspense, lazy } from "react";
 
 // import App from "../../index.js";
 // const LazyMyNavBar = React.lazy(() => import("./MyNavBar"));
-const LazyLayout = React.lazy(() => import("./Layout"));
-const LazyHome = React.lazy(() => import("./Home"));
-const LazyCardList = React.lazy(() => import("../CardList"));
-const LazyMap = React.lazy(() => import("../map/MyMap"));
+const LazyLayout = lazy(() => import("./Layout"));
+const LazyHome = lazy(() => import("./Home"));
+const LazyCardList = lazy(() => import("../CardList"));
+const LazyMap = lazy(() => import("../map/MyMap"));
 
 export default [
   {
     path: "/",
     name: "home",
     async action({ props }) {
+      console.log("action-home", props);
       return (
         <>
           <Suspense fallback={<span>Loading</span>}>
@@ -26,7 +27,7 @@ export default [
   {
     path: "/List",
     name: "events list",
-    async action({ props }) {
+    async action() {
       return (
         <Suspense fallback={<span>Loading</span>}>
           <LazyLayout>
@@ -39,11 +40,11 @@ export default [
   {
     path: "/Map",
     name: "map",
-    async action({ props }) {
+    async action(props) {
       return (
         <Suspense fallback={<span>Loading</span>}>
           <LazyLayout>
-            <LazyMap warning={props} />
+            <LazyMap {...props} />
           </LazyLayout>
         </Suspense>
       );
