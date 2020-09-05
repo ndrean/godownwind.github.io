@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
 
-import history from "./history";
+//import history from "./history";
 
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
@@ -19,12 +19,6 @@ const LazyFormLogin = React.lazy(() => import("../FormLogin"));
 export default React.memo(function MyNavBar(props) {
   console.log("_NavBar_");
 
-  // const handleClick = (e) => {
-  //   e.preventDefault();
-  //   // e.currentTarget.pathname === e.currentTarget.getAttribute('href)
-  //   history.push({ pathname: e.currentTarget.getAttribute("href") });
-  // };
-
   return (
     <Navbar bg="primary" fixed="top">
       <Nav className="mr-auto">
@@ -39,7 +33,6 @@ export default React.memo(function MyNavBar(props) {
               height="30px"
             />
           </Link>
-          {/* <Nav.Link href="/" onClick={(e) => handleClick(e)}></Nav.Link> */}
         </Button>
 
         <Suspense fallback={<span>Loading Login...</span>}>

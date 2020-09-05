@@ -3,24 +3,23 @@ import React, { useRef, useEffect, useState, Suspense, lazy } from "react";
 import "leaflet/dist/leaflet.css";
 import L, { marker } from "leaflet";
 import * as esriGeocode from "esri-leaflet-geocoder";
-//as esriGeocode
 
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 
-import { redIcon, greenIcon, blueIcon, kiteIcon } from "./Icon";
+import { redIcon, greenIcon, blueIcon } from "./Icon";
 
 import { FaAlignJustify } from "react-icons/fa";
 
 import { PositionContext } from "../nav/PositionContext";
-import { UserContext } from "../UserContext";
+//import { UserContext } from "../UserContext";
 
 import convertToGeojson from "./convertToGeojson";
 import fetchModif from "../../helpers/fetchModif";
 
-import urlBack from "../../helpers/urlBack";
+//import urlBack from "../../helpers/urlBack";
 
-const LazyGeoloc = lazy(() => import("../nav/Geoloc"));
+//const LazyGeoloc = lazy(() => import("../nav/Geoloc"));
 
 const LazyMapForm = lazy(() => import("./MapForm"));
 
@@ -40,7 +39,6 @@ const html = `<p>
 
 export default function MyMap(props) {
   console.log("_map_");
-  // console.log("Map-props", props);
   const [gps] = React.useContext(PositionContext);
 
   const [startPoint, setStartPoint] = useState("");
@@ -51,19 +49,16 @@ export default function MyMap(props) {
   const mapRef = useRef(null);
   const markersLayer = useRef(L.layerGroup([]));
 
-  const [userData] = React.useContext(UserContext);
-  // console.log("user", userData);
+  //const [userData] = React.useContext(UserContext);
 
-  let startEnd = [];
-
-  let itinary = "";
+  let startEnd = [],
+    itinary = "";
 
   useEffect(() => {
-    console.log("_draw map_");
-    const center = gps.Lat ? [gps.Lat, gps.Lng] : [50, 0];
+    const center = gps.Lat ? [gps.Lat, gps.Lng] : [50, 30];
     mapRef.current = L.map("map", {
       center: center,
-      zoom: 3,
+      zoom: 4,
       layers: [
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           attribution:
@@ -79,7 +74,6 @@ export default function MyMap(props) {
   }, [gps]);
 
   useEffect(() => {
-    console.log("_ctrl_");
     const searchControl = new esriGeocode.geosearch({
       expanded: true,
       zoomToResult: true,
@@ -208,7 +202,14 @@ export default function MyMap(props) {
         // calculate the distance between the 2 inputs
         const val = Object.values(startEnd);
         const keys = Object.keys(startEnd);
+        console.log(keys.includes("start") && keys.includes("end"));
+
         if (keys.includes("start") && keys.includes("end")) {
+          console.log(L.latLng(val[0]), L.latLng(val[1]));
+          console.log(
+            (L.latLng(val[0]).distanceTo(L.latLng(val[1])) / 1000).toFixed(0)
+          );
+
           setTripLength(
             (L.latLng(val[0]).distanceTo(L.latLng(val[1])) / 1000).toFixed(0)
           );
@@ -222,30 +223,28 @@ export default function MyMap(props) {
 
   const onEachFeature = React.useCallback((feature) => {
     if (feature.geometry.coordinates) {
-      // Geojson is stored in [lng, lat] and Leaflet needs [lat, lng]....!
+      // !! Geojson is [lng, lat] and Leaflet needs [lat, lng] !!
       const [lat0, long0] = feature.geometry.coordinates[0];
       const [lat1, long1] = feature.geometry.coordinates[1];
+
       const start = marker([long0, lat0], {
         icon: redIcon,
       }).addTo(markersLayer.current);
+
       const end = marker([long1, lat1], {
         icon: greenIcon,
       }).addTo(markersLayer.current);
-      //L.polyline(feature.geometry.coordinates).addTo(markersLayer.current);
-      const distance = Math.round(
-        parseFloat(
-          L.latLng(feature.geometry.coordinates[0]).distanceTo(
-            L.latLng(feature.geometry.coordinates[1])
-          ),
-          0
-        ) / 1000
-      );
+
       const content = L.DomUtil.create("div");
       content.innerHTML = `
-      <h6>${feature.properties.date} </h6>
-      <p> From: ${feature.properties.start}</p>
-      <p> To:  ${feature.properties.end} </p>
-      <p> Distance: ${distance} km </p>`;
+        <h6>${feature.properties.date} </h6>
+        <p> From: ${feature.properties.start}</p>
+        <p> To:  ${feature.properties.end} </p>
+        <p> Distance: ${parseFloat(feature.properties.distance).toFixed(
+          0
+        )} km </p>
+        `;
+
       start.bindPopup(content);
       end.bindPopup(content);
     }
@@ -254,25 +253,20 @@ export default function MyMap(props) {
   // display the events
   useEffect(() => {
     console.log("_Events_");
-
     const markersLayerRef = markersLayer.current;
-    // fetch(urlBack + "/events")
-    //   .then((res) => {
-    //     if (!res) {
-    //       return;
-    //     } else {
-    //       return res.json();
-    //     }
-    //   })
+    //fetch(urlBack +"/events").then((res) => {if (!res) {return} else {return res.json()}})
     Promise.resolve(props.events)
       .then((res) => {
-        return convertToGeojson(res);
+        if (res) {
+          return convertToGeojson(res);
+        } else return;
       })
       .then((data) => {
+        // draw LineString
         L.geoJSON(data, {
           onEachFeature: onEachFeature,
         }).addTo(mapRef.current);
-
+        // add markers at endpoints
         markersLayerRef.addTo(mapRef.current);
       });
 
@@ -284,18 +278,10 @@ export default function MyMap(props) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    // modif props.user => userData.email
-    if (!userData.email) return window.alert("Please login");
+    if (!props.user.email) return window.alert("Please login");
 
     if (!startPoint || !endPoint)
       return window.alert("Please select two points");
-
-    let distance = 0;
-    if (startPoint.start_gps && endPoint.end_gps)
-      distance = (
-        L.latLng(startPoint.start_gps).distanceTo(L.latLng(endPoint.end_gps)) /
-        1000
-      ).toFixed(0);
 
     itinary = {
       date: date,
@@ -303,12 +289,11 @@ export default function MyMap(props) {
       start_gps: [startPoint.start_gps.lat, startPoint.start_gps.lng],
       end: endPoint.end,
       end_gps: [endPoint.end_gps.lat, endPoint.end_gps.lng],
-      distance: distance,
+      distance: tripLength,
     };
 
     const formdata = new FormData();
     for (const key of ["date", "start", "end", "distance"]) {
-      // console.log(key, itinary[key]);
       formdata.append(`event[itinary_attributes][${key}]`, itinary[key]);
     }
     // split in the frontend as Rails Postgres doesn't separate the array (instead of plistting in the backend)
@@ -328,9 +313,10 @@ export default function MyMap(props) {
       method: "POST",
       index: "",
       body: formdata,
-      token: props.user.access_token, //props.token,
+      token: props.token,
     })
       .then((result) => {
+        console.log(result);
         if (result) {
           props.onhandleUpdateEvents(result);
           window.alert(
@@ -339,6 +325,7 @@ export default function MyMap(props) {
           setStartPoint("");
           setEndPoint("");
           setDate("");
+          setTripLength(0);
           // mapRef.current.removeLayer(markersLayer.current);
         }
       })
@@ -351,14 +338,11 @@ export default function MyMap(props) {
 
   return (
     <Container fluid>
-      <Suspense fallback={<span></span>}>
-        <LazyGeoloc />
-      </Suspense>
-
-      <p>UserContext: {userData.email}</p>
       <Row>
         <div id="map"></div>
       </Row>
+
+      <br />
       <Suspense fallback={<span>Loading...</span>}>
         <LazyMapForm
           onhandleSubmit={handleSubmit}
@@ -369,7 +353,6 @@ export default function MyMap(props) {
           onhandleDate={handleDate}
         />
       </Suspense>
-      <br />
 
       <p style={{ fontSize: "8px" }}>
         Click on the map or use the "Search City / address" box to define a

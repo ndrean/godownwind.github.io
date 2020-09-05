@@ -114,16 +114,31 @@ function CardList({ user, users, events, ...props }) {
       }
 
       // the back-end needs the arrays to be split (otherwise, to be done by the backend...)
-      // fd.append(
-      //   "event[itinary_attributes][start_gps][][0]",
-      //   itinary.start_gps[0]
-      // );
-      // fd.append(
-      //   "event[itinary_attributes][start_gps][][1]",
-      //   itinary.start_gps[1]
-      // );
-      // fd.append("event[itinary_attributes][end_gps][][0]", itinary.end_gps[0]);
-      // fd.append("event[itinary_attributes][end_gps][][1]", itinary.end_gps[1]);
+      console.log(
+        itinary.start_gps && itinary.end_gps && itinary.start_gps.length > 0
+      );
+      if (
+        itinary.start_gps &&
+        itinary.end_gps &&
+        itinary.start_gps.length > 0
+      ) {
+        fd.append(
+          "event[itinary_attributes][start_gps][]",
+          itinary.start_gps[0] || ""
+        );
+        fd.append(
+          "event[itinary_attributes][start_gps][]",
+          itinary.start_gps[1] || ""
+        );
+        fd.append(
+          "event[itinary_attributes][end_gps][]",
+          itinary.end_gps[0] || ""
+        );
+        fd.append(
+          "event[itinary_attributes][end_gps][]",
+          itinary.end_gps[1] || ""
+        );
+      }
 
       if (participants.length > 0) {
         participants.forEach((member) => {
@@ -179,23 +194,7 @@ function CardList({ user, users, events, ...props }) {
           })
             .then((result) => {
               if (result) {
-                const {
-                  id,
-                  comment,
-                  participants,
-                  publicID,
-                  directCLurl,
-                } = result;
-                const newEvent = {
-                  id,
-                  comment,
-                  participants,
-                  publicID,
-                  directCLurl,
-                  itinary,
-                  user,
-                };
-                props.onhandleAddEvent(newEvent);
+                props.onhandleAddEvent(result);
               }
             })
             .catch((err) => console.log(err));
@@ -209,23 +208,7 @@ function CardList({ user, users, events, ...props }) {
           })
             .then((result) => {
               if (result) {
-                const {
-                  id,
-                  comment,
-                  participants,
-                  publicID,
-                  directCLurl,
-                } = result;
-                const newEvent = {
-                  id,
-                  comment,
-                  participants,
-                  publicID,
-                  directCLurl,
-                  itinary,
-                  user,
-                };
-                props.onhandleModifyEvent(newEvent);
+                props.onhandleUpdateEvents(result);
               }
             })
             .catch((err) => console.log(err));
@@ -238,16 +221,15 @@ function CardList({ user, users, events, ...props }) {
 
   // Edit event
   async function handleEdit(event) {
-    // console.log("*edit*");
     setIndexEdit(event.id); // get /api/v1/events/:id
     const data = events.find((ev) => ev.id === event.id);
     setItinary({
       date: new Date(data.itinary.date).toISOString().slice(0, 10),
       start: data.itinary.start,
       end: data.itinary.end,
-      //start_gps: data.itinary.start_gps || "",
-      //end_gps: data.itinary.end_gps || "",
-      //distance: data.itinary.distance || "",
+      start_gps: data.itinary.start_gps || "",
+      end_gps: data.itinary.end_gps || "",
+      distance: data.itinary.distance || 0,
     });
     setParticipants(data.participants || []);
     setComment(data.comment || "");
@@ -259,7 +241,6 @@ function CardList({ user, users, events, ...props }) {
   }
 
   function handleSelectChange(selectedOptions) {
-    // console.log("*select*");
     if (selectedOptions) {
       const kiters = [];
       selectedOptions.forEach((selOpt) => {
@@ -284,7 +265,6 @@ function CardList({ user, users, events, ...props }) {
 
   // update dynamically key/value for date, start, end of itinary
   function handleItinaryChange(e) {
-    // console.log("*itinary*");
     setItinary({
       ...itinary,
       [e.target.name]: e.target.value,
@@ -332,7 +312,7 @@ function CardList({ user, users, events, ...props }) {
         ...event,
         participants: [...participants, pushedParticipant],
       };
-      props.onhandleModifyEvent(pushedEvent);
+      props.onhandleUpdateEvents(pushedEvent);
       handleCloseDetail();
     } else {
       window.alert("Not authorized");

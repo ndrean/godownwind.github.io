@@ -3,7 +3,7 @@ import Container from "react-bootstrap/Container";
 
 import MyNavBar from "./MyNavBar";
 import { PositionProvider } from "./PositionContext";
-import { UserProvider } from "./../UserContext";
+//import { UserProvider } from "./../UserContext";
 
 function Layout(props) {
   console.log("_Layout_");
@@ -11,19 +11,18 @@ function Layout(props) {
   return (
     <Container>
       <PositionProvider>
-        <UserProvider>
-          <MyNavBar
-            onhandleToken={props.onhandleToken}
-            onhandleAddUser={props.onhandleAddUser}
-            onRemoveToken={props.onRemoveToken}
-            onSettingUser={props.onSettingUser}
-            fbConfig={props.fbConfig}
-            user={props.user}
-            users={props.users}
-            token={props.jwtToken}
-          />
-          {props.children}
-        </UserProvider>
+        {/* <UserProvider> */}
+        <MyNavBar
+          {...props}
+          // onhandleToken={props.onhandleToken}
+          // onhandleAddUser={props.onhandleAddUser}
+          // onRemoveUser={props.onRemoveUser}
+          // fbConfig={props.fbConfig}
+          // user={props.user}
+          // token={props.token}
+        />
+        {props.children}
+        {/* </UserProvider> */}
       </PositionProvider>
     </Container>
   );

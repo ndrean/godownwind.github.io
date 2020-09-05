@@ -2,17 +2,15 @@ import React, { useState, useEffect, Suspense, lazy } from "react";
 
 import { Switch, Route } from "react-router-dom";
 
-//import CardList from "./CardList";
+import Loader from "../helpers/Loader";
 import urlBack from "../helpers/urlBack";
-//import MyNavBar from "./nav/MyNavBar";
 
 import "../index.css";
-import Home from "./nav/Home";
 
 const LazyLayout = lazy(() => import("./nav/Layout"));
 const LazyMap = lazy(() => import("./map/MyMap"));
-
-const LazyCardList = React.lazy(() => import("./CardList"));
+const LazyHome = lazy(() => import("./nav/Home"));
+const LazyCardList = lazy(() => import("./CardList"));
 
 const options = {
   method: "GET",
@@ -21,7 +19,7 @@ const options = {
   }),
 };
 
-function App() {
+export default function App() {
   console.log("__App__");
   const [users, setUsers] = useState("");
   const [events, setEvents] = useState("");
@@ -39,7 +37,7 @@ function App() {
     }
   };
 
-  // fetch Facebook appID from backend, in ENV variable
+  // fetch Facebook appID from backend
   useEffect(() => {
     fetch(urlBack + "/fbParams", options)
       .then((res) => res.json())
@@ -54,6 +52,7 @@ function App() {
       );
   }, []);
 
+  // fetch Cloudinary credentials
   useEffect(() => {
     fetch(urlBack + "/CLParams", options)
       .then((res) => res.json())
@@ -128,21 +127,15 @@ function App() {
     setJwtToken(value);
   }
 
-  function removeToken() {
-    setJwtToken("");
+  function removeUser() {
     setUser("");
   }
 
-  const settingUser = (obj) => {
-    setUser(obj);
-  };
-
   const handleRemoveEvent = (event) => {
-    // console.log("*removeEvt*");
     setEvents((prev) => [...prev].filter((ev) => ev.id !== event.id));
   };
 
-  function handleModifyEvent(event) {
+  function handleUpdateEvents(event) {
     setEvents((prev) => {
       const newEvents = prev.filter((evt) => evt.id !== event.id);
       setEvents([...newEvents, event]);
@@ -150,120 +143,75 @@ function App() {
   }
 
   function handleAddEvent(event) {
-    // console.log("*AddEvt*");
     setEvents((prev) => [...prev, event]);
   }
 
   return (
-    <>
+    <Suspense fallback={<Loader />}>
       <Switch>
         <Route
           exact
           path="/"
           render={() => (
-            <Suspense fallback={<span>Loading...</span>}>
-              <LazyLayout
-                onhandleToken={handleToken}
-                onhandleAddUser={handleAddUser}
-                onRemoveToken={removeToken}
-                onSettingUser={settingUser}
-                fbConfig={fbConfig}
-                user={user}
-                users={users}
-                jwtToken={jwtToken}
-              >
-                <Home />
-              </LazyLayout>
-            </Suspense>
+            <LazyLayout
+              onhandleToken={handleToken}
+              onhandleAddUser={handleAddUser}
+              onRemoveUser={removeUser}
+              fbConfig={fbConfig}
+              user={user}
+              token={jwtToken}
+            >
+              <LazyHome />
+            </LazyLayout>
           )}
         />
         <Route
           exact
           path="/cardlist"
           render={() => (
-            <Suspense fallback={<span>Loading...</span>}>
-              <LazyLayout
-                onhandleToken={handleToken}
+            <LazyLayout
+              onhandleToken={handleToken}
+              onhandleAddUser={handleAddUser}
+              onRemoveUser={removeUser}
+              fbConfig={fbConfig}
+              token={jwtToken}
+              user={user}
+            >
+              <LazyCardList
+                users={users}
+                token={jwtToken}
+                user={user}
+                events={events}
                 onhandleAddEvent={handleAddEvent}
                 onhandleRemoveEvent={handleRemoveEvent}
-                onhandleAddUser={handleAddUser}
-                onRemoveToken={removeToken}
-                onSettingUser={settingUser}
-                fbConfig={fbConfig}
-                user={user}
-                //users={users}
-                token={jwtToken}
-              >
-                <LazyCardList
-                  users={users}
-                  token={jwtToken}
-                  user={user}
-                  events={events}
-                  onhandleAddEvent={handleAddEvent}
-                  onhandleRemoveEvent={handleRemoveEvent}
-                />
-              </LazyLayout>
-            </Suspense>
+                onhandleUpdateEvents={handleUpdateEvents}
+              />
+            </LazyLayout>
           )}
         />
         <Route
           path="/Map"
           render={() => (
-            <Suspense fallback={<span>Loading...</span>}>
-              <LazyLayout
-                onhandleToken={handleToken}
-                onhandleAddEvent={handleAddEvent}
-                onhandleRemoveEvent={handleRemoveEvent}
-                onhandleAddUser={handleAddUser}
-                onRemoveToken={removeToken}
-                onSettingUser={settingUser}
-                fbConfig={fbConfig}
+            <LazyLayout
+              onhandleToken={handleToken}
+              onhandleAddUser={handleAddUser}
+              onRemoveUser={removeUser}
+              fbConfig={fbConfig}
+              user={user}
+              token={jwtToken}
+            >
+              <LazyMap
                 user={user}
-                //users={users}
+                // users={users}
                 token={jwtToken}
-              >
-                <LazyMap
-                  user={user}
-                  users={users}
-                  token={jwtToken}
-                  events={events}
-                  onhandleUpdateEvents={handleAddEvent}
-                />
-              </LazyLayout>
-            </Suspense>
+                events={events}
+                onhandleAddEvent={handleAddEvent}
+                onhandleUpdateEvents={handleUpdateEvents}
+              />
+            </LazyLayout>
           )}
         />
       </Switch>
-    </>
+    </Suspense>
   );
-}
-
-export default App;
-
-{
-  /* <MyNavBar
-        onhandleToken={handleToken}
-        onhandleAddUser={handleAddUser}
-        onRemoveToken={removeToken}
-        onSettingUser={settingUser}
-        fbConfig={fbConfig}
-        user={user}
-      />
-      {loading ? <p>Loading 1...</p> : ""}
-      {!loading && (
-        <Suspense fallback={<span>Loading 2...</span>}>
-          <LazyCardList
-            user={user}
-            users={users}
-            events={events}
-            token={jwtToken}
-            onhandleRemoveEvent={handleRemoveEvent}
-            onhandleAddEvent={handleAddEvent}
-            onhandleModifyEvent={handleModifyEvent}
-            clSecret={CLCreds}
-          />
-        </Suspense>
-      )}
-    </> 
-      */
 }

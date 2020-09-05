@@ -10,7 +10,7 @@ import Form from "react-bootstrap/Form";
 import { FaSignInAlt, FaShare } from "react-icons/fa";
 
 function Details(props) {
-  console.log("_details_");
+  // console.log("_details_");
   const { event } = props;
 
   return (
@@ -48,8 +48,12 @@ function Details(props) {
             : event.participants.map((participant, idx) => (
                 <Container key={participant.email.toString()}>
                   <Row>
-                    <Col xs="6">{participant.email}</Col>
-                    <Col xs="3">
+                    <Col xs="8">
+                      <span style={{ fontSize: "12px" }}>
+                        {participant.email}
+                      </span>
+                    </Col>
+                    <Col xs="2">
                       <Form.Group controlId="formBasicCheckbox">
                         <Form.Check
                           name={idx}
@@ -78,6 +82,7 @@ function Details(props) {
           <Button
             name="close modal"
             variant="secondary"
+            aria-label="close window"
             onClick={props.onhandleCloseDetail}
           >
             Close

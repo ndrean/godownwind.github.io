@@ -12,7 +12,7 @@ import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import backimage from "../assets/beach2.webp";
 
 function CardItem({ event, ...props }) {
-  console.log("_item_");
+  // console.log("_item_");
   return (
     <Container>
       <Row>
@@ -32,7 +32,7 @@ function CardItem({ event, ...props }) {
               Organizer: {event.user.email} <br />
               From: {event.itinary.start} <br />
               To: {event.itinary.end} <br />
-              Distance: {event.itinary.distance}
+              Distance: {parseFloat(event.itinary.distance).toFixed(0)}
             </Card.Text>
 
             <Card.Footer>

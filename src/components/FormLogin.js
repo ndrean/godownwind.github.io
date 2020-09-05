@@ -1,7 +1,7 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 
-import { UserContext } from "./UserContext";
+//import { UserContext } from "./UserContext";
 import urlBack from "../helpers/urlBack";
 
 import ReactModalLogin from "react-modal-login";
@@ -15,7 +15,7 @@ export default React.memo(function LoginForm({ user, ...props }) {
   const [loggedIn, setLoggedIn] = useState(false);
   const [result, setResult] = useState("");
 
-  const [userData, setUserData] = useContext(UserContext);
+  //const [userData, setUserData] = useContext(UserContext);
 
   function openModal() {
     setShowModal(true);
@@ -50,12 +50,12 @@ export default React.memo(function LoginForm({ user, ...props }) {
 
   async function saveUser(jwt, user) {
     setLoggedIn(true);
-    localStorage.setItem("jwt", true);
+    //localStorage.setItem("jwt", true);
     props.onhandleToken(jwt);
-    localStorage.setItem("user", user.email);
-    //alert(`Welcome ${user.email}`);
+    //localStorage.setItem("user", user.email);
+    alert(`Welcome ${user.email}`);
     props.onhandleAddUser(user);
-    setUserData({ email: user.email, jwt });
+    //setUserData({ email: user.email, jwt });
   }
 
   async function onLoginSuccess(method, response) {
@@ -71,13 +71,7 @@ export default React.memo(function LoginForm({ user, ...props }) {
       } = response;
       const query = await fetch(`https://graph.facebook.com/me?access_token=${accessToken}&
 fields=id,name,email,picture.width(640).height(640)`);
-      const {
-        id,
-        email,
-        picture: {
-          data: { url },
-        },
-      } = await query.json();
+      const { id, email } = await query.json();
 
       // 1.2 call backend to FIND OR CREATE user and get Knock_token
       const queryAppToken = await fetch(urlBack + "/findCreateFbUser", {
@@ -104,7 +98,6 @@ fields=id,name,email,picture.width(640).height(640)`);
             });
             const currentUser = await getCurrentUser.json();
             if (currentUser.confirm_email && !currentUser.confirm_token) {
-              //setAvatar(url);
               saveUser(access_token, currentUser);
             } else {
               onLoginFail("Check your mail to confirm password update 2");
@@ -242,9 +235,8 @@ fields=id,name,email,picture.width(640).height(640)`);
     setLoading(false);
     setLoggedIn(false);
     setResult({ error: response });
-    localStorage.removeItem("jwt");
-    localStorage.removeItem("user");
-    props.onRemoveToken();
+    props.onhandleToken("");
+    props.onRemoveUser("");
   }
 
   function startLoading() {
@@ -256,11 +248,9 @@ fields=id,name,email,picture.width(640).height(640)`);
   }
 
   function logOut() {
-    props.onRemoveToken();
     setLoggedIn(false);
-    localStorage.removeItem("jwt");
-    localStorage.removeItem("user");
-    //setAvatar("");
+    props.onhandleToken("");
+    props.onRemoveUser("");
     setResult("");
     window.alert("bye");
   }
@@ -272,7 +262,7 @@ fields=id,name,email,picture.width(640).height(640)`);
         onClick={openModal}
         hidden={loggedIn}
         style={{
-          padding: "3px",
+          padding: "10px",
           margin: "auto",
           border: "none",
           backgroundColor: "#1666C5", //"#3b5998",
@@ -287,7 +277,7 @@ fields=id,name,email,picture.width(640).height(640)`);
       {user && (
         <Button
           name="login out"
-          onClick={() => logOut()}
+          onClick={logOut}
           style={{
             padding: "3px",
             margin: "auto",

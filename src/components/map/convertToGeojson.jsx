@@ -39,6 +39,7 @@ export default function convertToGeojson(data) {
             properties: {
               start: d.itinary.start,
               end: d.itinary.end,
+              distance: d.itinary.distance || 0,
               itinaryID: d.itinary_id,
               eventID: d.id,
               participants: d.participants,
@@ -49,6 +50,5 @@ export default function convertToGeojson(data) {
       }
     });
   }
-  console.log(geojson);
   return geojson;
 }
