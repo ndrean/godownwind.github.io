@@ -6,20 +6,18 @@ import * as esriGeocode from "esri-leaflet-geocoder";
 
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
+import Badge from "react-bootstrap/Badge";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Popover from "react-bootstrap/Popover";
 
 import { redIcon, greenIcon, blueIcon } from "./Icon";
 
 import { FaAlignJustify } from "react-icons/fa";
-
+import { FaQuestion } from "react-icons/fa";
 import { PositionContext } from "../nav/PositionContext";
-//import { UserContext } from "../UserContext";
 
 import convertToGeojson from "./convertToGeojson";
 import fetchModif from "../../helpers/fetchModif";
-
-//import urlBack from "../../helpers/urlBack";
-
-//const LazyGeoloc = lazy(() => import("../nav/Geoloc"));
 
 const LazyMapForm = lazy(() => import("./MapForm"));
 
@@ -37,8 +35,27 @@ const html = `<p>
       </label>
     </p>`;
 
+const popover = (
+  <Popover id="popover-basic">
+    <Popover.Content>
+      Click on the map or use the "Search City / address" box to define a point.
+      A popup will appear with the address found. Then assign 'start' or 'end'
+      or remove. To save, click on the x upright. Once you defined your 2 points
+      start and end, submit to save the event. Navigate to the list menu (
+      <FaAlignJustify size={10} /> ) to delete or invite buddies.
+    </Popover.Content>
+  </Popover>
+);
+
+const Help = () => (
+  <OverlayTrigger trigger="click" placement="bottom" overlay={popover}>
+    <Badge variant="success">
+      <FaQuestion />
+    </Badge>
+  </OverlayTrigger>
+);
+
 export default function MyMap(props) {
-  console.log("_map_");
   const [gps] = React.useContext(PositionContext);
 
   const [startPoint, setStartPoint] = useState("");
@@ -48,8 +65,6 @@ export default function MyMap(props) {
 
   const mapRef = useRef(null);
   const markersLayer = useRef(L.layerGroup([]));
-
-  //const [userData] = React.useContext(UserContext);
 
   let startEnd = [],
     itinary = "";
@@ -180,7 +195,6 @@ export default function MyMap(props) {
             setStartPoint("");
           }
           startEnd = { ...startEnd, end: coords };
-          console.log(startEnd);
           setEndPoint((prev) => ({
             ...prev,
             end: place,
@@ -205,11 +219,6 @@ export default function MyMap(props) {
         console.log(keys.includes("start") && keys.includes("end"));
 
         if (keys.includes("start") && keys.includes("end")) {
-          console.log(L.latLng(val[0]), L.latLng(val[1]));
-          console.log(
-            (L.latLng(val[0]).distanceTo(L.latLng(val[1])) / 1000).toFixed(0)
-          );
-
           setTripLength(
             (L.latLng(val[0]).distanceTo(L.latLng(val[1])) / 1000).toFixed(0)
           );
@@ -316,7 +325,6 @@ export default function MyMap(props) {
       token: props.token,
     })
       .then((result) => {
-        console.log(result);
         if (result) {
           props.onhandleUpdateEvents(result);
           window.alert(
@@ -326,7 +334,6 @@ export default function MyMap(props) {
           setEndPoint("");
           setDate("");
           setTripLength(0);
-          // mapRef.current.removeLayer(markersLayer.current);
         }
       })
       .catch((err) => console.log(err));
@@ -338,6 +345,10 @@ export default function MyMap(props) {
 
   return (
     <Container fluid>
+      <Row style={{ justifyContent: "center" }}>
+        <Help />
+      </Row>
+
       <Row>
         <div id="map"></div>
       </Row>
@@ -353,13 +364,6 @@ export default function MyMap(props) {
           onhandleDate={handleDate}
         />
       </Suspense>
-
-      <p style={{ fontSize: "8px" }}>
-        Click on the map or use the "Search City / address" box to define a
-        point, and assign 'start' or 'end' or remove it. Once you defined the
-        event, you can invite people by editing the event (the{" "}
-        <FaAlignJustify size={10} /> menu ). You can delete the event there.
-      </p>
     </Container>
   );
 }

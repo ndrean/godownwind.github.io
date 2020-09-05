@@ -12,15 +12,7 @@ function Layout(props) {
     <Container>
       <PositionProvider>
         {/* <UserProvider> */}
-        <MyNavBar
-          {...props}
-          // onhandleToken={props.onhandleToken}
-          // onhandleAddUser={props.onhandleAddUser}
-          // onRemoveUser={props.onRemoveUser}
-          // fbConfig={props.fbConfig}
-          // user={props.user}
-          // token={props.token}
-        />
+        <MyNavBar {...props} />
         {props.children}
         {/* </UserProvider> */}
       </PositionProvider>

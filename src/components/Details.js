@@ -10,7 +10,6 @@ import Form from "react-bootstrap/Form";
 import { FaSignInAlt, FaShare } from "react-icons/fa";
 
 function Details(props) {
-  // console.log("_details_");
   const { event } = props;
 
   return (
@@ -72,7 +71,6 @@ function Details(props) {
             onClick={props.onhandlePush}
             disabled={props.checkUser}
             aria-label="participate"
-            // {props.onCheckUserDemand}
           >
             <FaShare />
             Ask to participate

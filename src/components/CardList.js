@@ -22,7 +22,7 @@ function CardList({ user, users, events, ...props }) {
   const [itinary, setItinary] = useState(""); // array [date, start, end, startGSP, endGPS]
   const [fileCL, setFileCL] = useState("");
   const [previewCL, setPreviewCL] = useState(""); // preview photo
-  const [directCLurl, setDirectCLurl] = useState("");
+  //const [directCLurl, setDirectCLurl] = useState("");
   const [publicID, setPublicID] = useState(""); // id for Cloudinary
   const [changed, setChanged] = useState(false); // boolean if file selected
   const [loading, setLoading] = useState(false);
@@ -97,7 +97,6 @@ function CardList({ user, users, events, ...props }) {
   };
 
   async function handleFormSubmit(e) {
-    // console.log("*submit*");
     e.preventDefault();
     if (!user) {
       // keep the input in state if user forgot to login
@@ -117,6 +116,7 @@ function CardList({ user, users, events, ...props }) {
       console.log(
         itinary.start_gps && itinary.end_gps && itinary.start_gps.length > 0
       );
+      // to avoid [null,null] if create/edit and geojson conversion for the map
       if (
         itinary.start_gps &&
         itinary.end_gps &&
@@ -166,7 +166,6 @@ function CardList({ user, users, events, ...props }) {
         })
           .then((res) => res.json())
           .then((resCL) => {
-            setDirectCLurl(resCL.secure_url);
             setPublicID(resCL.public_id);
             ffd.append("event[directCLurl]", resCL.secure_url);
             ffd.append("event[publicID]", resCL.public_id);

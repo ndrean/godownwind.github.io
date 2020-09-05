@@ -12,7 +12,6 @@ import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import backimage from "../assets/beach2.webp";
 
 function CardItem({ event, ...props }) {
-  // console.log("_item_");
   return (
     <Container>
       <Row>

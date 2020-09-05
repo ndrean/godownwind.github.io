@@ -5,7 +5,6 @@ import Button from "react-bootstrap/Button";
 import urlBack from "../helpers/urlBack";
 
 import ReactModalLogin from "react-modal-login";
-//const LazyReactModalLogin = lazy(() => import("react-modal-login"));
 
 export default React.memo(function LoginForm({ user, ...props }) {
   console.log("__form__");
@@ -13,7 +12,7 @@ export default React.memo(function LoginForm({ user, ...props }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [result, setResult] = useState("");
+  //const [result, setResult] = useState("");
 
   //const [userData, setUserData] = useContext(UserContext);
 
@@ -60,7 +59,7 @@ export default React.memo(function LoginForm({ user, ...props }) {
 
   async function onLoginSuccess(method, response) {
     // console.log("__onLoginSuccess__");
-    setResult({ method, response });
+    //setResult({ method, response });
 
     //1. if using facebook
     if (method === "facebook") {
@@ -234,7 +233,7 @@ fields=id,name,email,picture.width(640).height(640)`);
     setError(response);
     setLoading(false);
     setLoggedIn(false);
-    setResult({ error: response });
+    //({ error: response });
     props.onhandleToken("");
     props.onRemoveUser("");
   }
@@ -251,7 +250,7 @@ fields=id,name,email,picture.width(640).height(640)`);
     setLoggedIn(false);
     props.onhandleToken("");
     props.onRemoveUser("");
-    setResult("");
+    //setResult("");
     window.alert("bye");
   }
 

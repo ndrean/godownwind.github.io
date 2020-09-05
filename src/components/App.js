@@ -25,7 +25,7 @@ export default function App() {
   const [events, setEvents] = useState("");
   const [user, setUser] = useState("");
 
-  const [loading, setLoading] = useState(false);
+  //const [loading, setLoading] = useState(false);
   const [jwtToken, setJwtToken] = useState("");
   const [fbConfig, setFbConfig] = useState("");
   const [CLCreds, setCLCreds] = useState("");
@@ -76,7 +76,7 @@ export default function App() {
   // fetch Events from db
   useEffect(() => {
     async function fetchData() {
-      setLoading(true);
+      //setLoading(true);
       // const query = window.addEventListener('fetch', e=> {
       //   const req = e.request;
       //   e.respondiWith(networkFirst(urlBack + "/events", "events-cache"))
@@ -91,8 +91,6 @@ export default function App() {
       } catch (err) {
         setEvents(null);
         throw new Error(err);
-      } finally {
-        setLoading(false);
       }
     }
     fetchData().then((res) => setEvents(res));
@@ -101,7 +99,7 @@ export default function App() {
   // fetch Users from db
   useEffect(() => {
     async function fetchData() {
-      setLoading(true);
+      //setLoading(true);
       try {
         const responseUsers = await fetch(urlBack + "/users", options);
         const usersCache = await caches.open("users-cache");
@@ -114,9 +112,10 @@ export default function App() {
       } catch (err) {
         setUsers(null);
         throw new Error(err);
-      } finally {
-        setLoading(false);
       }
+      // finally {
+      //   setLoading(false);
+      // }
     }
     fetchData().then((res) => {
       setUsers(res);

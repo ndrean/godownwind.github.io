@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 
 import Geoloc from "./Geoloc";
 
-export default function Home(props) {
+export default function Home() {
   return (
     <Container>
       <h5>How does this work?</h5>
@@ -24,7 +24,7 @@ export default function Home(props) {
               <FaGlobe size={16} />
             </Link>
           </span>{" "}
-          where you create and geolocate an event
+          where you create and geolocate an event with a start and end marker
         </li>
         <li>
           a list{" "}
