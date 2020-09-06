@@ -7,21 +7,15 @@ import "bootstrap/dist/css/bootstrap.min.css";
 
 import App from "./components/App";
 
-//import UniversalRouter from "universal-router";
-//import history from "./components/nav/history";
-//import routes from "./components/nav/routes";
-
-import "./index.css";
+import "./index.css"; // important for Leaflet.js
 
 import * as serviceWorker from "./serviceWorker";
-//import Map from '/components/Map';
-
-//const LazyCardList = React.lazy(() => import("./components/CardList"));
-//const LazyLayout = React.lazy(() => import("./components/nav/Layout"));
-// const LazyMyNavBar = React.lazy(() => import("./components/nav/MyNavBar"));
-//const LazyRouteError = React.lazy(() => import("./components/nav/RouteError"));
 
 /*
+import UniversalRouter from "universal-router";
+import history from "./components/nav/history";
+import routes from "./components/nav/routes";
+
 const options = {
   resolveRoute(context, _) {
     if (typeof context.route.action === "function") {
@@ -43,24 +37,13 @@ const options = {
   },
 };
 
-function getProps(path) {
-  let actionProps = "";
-  if (path === "/") {
-    actionProps = { nb: "5", bool: true };
-  } else if (path === "/Map") {
-    actionProps = "Prop through Universal Route";
-  }
-  return actionProps;
-}
-
 const router = new UniversalRouter(routes, options);
 
 async function renderRoute() {
   const path = window.location.pathname;
   router
     .resolve({
-      pathname: path,
-      props: getProps(path),
+      pathname: path
     })
     .then((component) => {
       ReactDOM.render(component, document.getElementById("root"));

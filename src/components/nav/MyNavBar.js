@@ -17,8 +17,6 @@ const LazyFormLogin = React.lazy(() => import("../FormLogin"));
 
 // fixed="top"
 export default React.memo(function MyNavBar(props) {
-  console.log("_NavBar_");
-
   return (
     <Navbar bg="primary" fixed="top">
       <Nav className="mr-auto">

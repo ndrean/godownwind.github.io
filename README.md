@@ -46,6 +46,12 @@ const LazyComponent = React.lazy(()=> import('./something'))
 </Suspense>
 ```
 
+3. Loadable components
+
+<https://loadable-components.com/docs/getting-started/>
+
+`yarn add @loadable/component``
+
 # Serving build
 
 With the conflict of Ruby's `serve', we use `static-server` to run the build file from the folder '\build`.

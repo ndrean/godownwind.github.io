@@ -28,7 +28,7 @@ export default function App() {
   //const [loading, setLoading] = useState(false);
   const [jwtToken, setJwtToken] = useState("");
   const [fbConfig, setFbConfig] = useState("");
-  const [CLCreds, setCLCreds] = useState("");
+  //const [CLCreds, setCLCreds] = useState("");
 
   const handleAddUser = (currentUser) => {
     setUser(currentUser);
@@ -52,7 +52,7 @@ export default function App() {
       );
   }, []);
 
-  // fetch Cloudinary credentials
+  /* fetch Cloudinary credentials
   useEffect(() => {
     fetch(urlBack + "/CLParams", options)
       .then((res) => res.json())
@@ -60,37 +60,18 @@ export default function App() {
         setCLCreds(res);
       });
   }, []);
-
-  async function networkFirst(req, mycache) {
-    const cache = await caches.open(mycache);
-    try {
-      const fresh = await fetch(req);
-      cache.put(req, fresh.clone(req));
-      return fresh;
-    } catch (e) {
-      const cachedResponse = await cache.match(req);
-      return cachedResponse;
-    }
-  }
+  */
 
   // fetch Events from db
   useEffect(() => {
     async function fetchData() {
-      //setLoading(true);
-      // const query = window.addEventListener('fetch', e=> {
-      //   const req = e.request;
-      //   e.respondiWith(networkFirst(urlBack + "/events", "events-cache"))
-      //   .then(res => setEvents(res))
-      // })
-
-      const req = new Request(urlBack + "/events", options);
       try {
-        networkFirst(req, "events-cache")
-          .then((res) => res.json())
-          .then((res) => setEvents(res));
+        const reqEvents = new Request(urlBack + "/events", options);
+        const query = await fetch(reqEvents);
+        return await query.json();
       } catch (err) {
         setEvents(null);
-        throw new Error(err);
+        console.log(err);
       }
     }
     fetchData().then((res) => setEvents(res));
@@ -99,36 +80,23 @@ export default function App() {
   // fetch Users from db
   useEffect(() => {
     async function fetchData() {
-      //setLoading(true);
       try {
-        const responseUsers = await fetch(urlBack + "/users", options);
-        const usersCache = await caches.open("users-cache");
-        usersCache.put(urlBack + "/users", responseUsers.clone(responseUsers));
-        return await responseUsers.json();
-        // const responseUsers = await fetch(urlBack + "/users", options);
-        // if (responseUsers.ok) {
-        //   return await responseUsers.json();
-        // }
+        const reqUsers = new Request(urlBack + "/users", options);
+        const query = await fetch(reqUsers);
+        return await query.json();
       } catch (err) {
         setUsers(null);
         throw new Error(err);
       }
-      // finally {
-      //   setLoading(false);
-      // }
     }
     fetchData().then((res) => {
       setUsers(res);
     });
   }, [user]);
 
-  function handleToken(value) {
-    setJwtToken(value);
-  }
+  const handleToken = (value) => setJwtToken(value);
 
-  function removeUser() {
-    setUser("");
-  }
+  const removeUser = () => setUser("");
 
   const handleRemoveEvent = (event) => {
     setEvents((prev) => [...prev].filter((ev) => ev.id !== event.id));

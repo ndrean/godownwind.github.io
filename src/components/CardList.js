@@ -6,16 +6,18 @@ import Button from "react-bootstrap/Button";
 
 import { FaCheck } from "react-icons/fa";
 
-import CardItem from "./CardItem";
+//import CardItem from "./CardItem";
 
 import urlBack from "../helpers/urlBack";
-
+import Loader from "../helpers/Loader";
 import EventForm from "./EventForm";
 import fetchModif from "../helpers/fetchModif"; // returns data after PATCH or POST depending upon endpoint
 import cloudName from "../helpers/cloudName"; // for Cloudinary
 
+// const LazyEventForm = React.lazy(() => import("./EventForm"));
 const LazyEventModal = React.lazy(() => import("./EventModal"));
 const LazyDetails = React.lazy(() => import("./Details"));
+const LazyCardItem = React.lazy(() => import("./CardItem"));
 
 function CardList({ user, users, events, ...props }) {
   // events= [event:{user, itinary, participants, url, publicID, comment}]
@@ -33,8 +35,6 @@ function CardList({ user, users, events, ...props }) {
   const [comment, setComment] = useState("");
   const [checkUser, setCheckUser] = useState(false);
 
-  console.log("_CardList_");
-
   // modal in a list: use index boolean
   const handleCloseDetail = () => {
     setShow(false);
@@ -42,9 +42,7 @@ function CardList({ user, users, events, ...props }) {
     setCheckUser(false);
   };
 
-  const handleShowDetail = (index) => {
-    setModalId(index);
-  };
+  const handleShowDetail = (index) => setModalId(index);
 
   const handleShow = () => setShow(true);
 
@@ -108,7 +106,6 @@ function CardList({ user, users, events, ...props }) {
     function init(fd) {
       fd.append("event[comment]", comment);
       for (const key of ["date", "start", "end", "distance"]) {
-        // console.log(key, itinary[key]);
         fd.append(`event[itinary_attributes][${key}]`, itinary[key]);
       }
 
@@ -178,6 +175,7 @@ function CardList({ user, users, events, ...props }) {
         return Promise.resolve(ffd);
       }
     }
+
     // chaining of promises 1 & 2
     init(new FormData())
       .then((res) => upLoadToCL(res))
@@ -275,7 +273,6 @@ function CardList({ user, users, events, ...props }) {
   }
 
   async function handlePictureCL(e) {
-    console.log("*pic*");
     if (e.target.files[0]) {
       setPreviewCL(URL.createObjectURL(e.target.files[0]));
       setChanged(true);
@@ -288,8 +285,6 @@ function CardList({ user, users, events, ...props }) {
   async function handlePush(index, modalId, event) {
     console.log("*push*");
     const check = checkUserDemand(index, modalId, event);
-    console.log(check);
-    //setCheckUser(check);
     if (user && !check) {
       const demand = JSON.stringify({
         user: user, //,currentUser,
@@ -343,7 +338,7 @@ function CardList({ user, users, events, ...props }) {
         <Button
           variant="outline-dark"
           onClick={handleShow}
-          style={{ fontSize: "30px" }}
+          style={{ fontSize: "30px", boxShadow: "2px 2px 2px rgba(0,0,0,0.3)" }}
           aria-label="event create"
         >
           {!loading && (
@@ -384,13 +379,13 @@ function CardList({ user, users, events, ...props }) {
       {events
         ? events.map((event, index) => {
             return (
-              <CardItem
-                key={event.id}
-                event={event}
-                onhandleRemove={(e) => handleRemove(e, event)}
-                onhandleEdit={() => handleEdit(event)}
-              >
-                <Suspense fallback={<span>Loading...</span>}>
+              <Suspense fallback={<Loader />}>
+                <LazyCardItem
+                  key={event.id}
+                  event={event}
+                  onhandleRemove={(e) => handleRemove(e, event)}
+                  onhandleEdit={() => handleEdit(event)}
+                >
                   <LazyDetails
                     event={event}
                     index={index}
@@ -401,12 +396,9 @@ function CardList({ user, users, events, ...props }) {
                     onhandlePush={() => handlePush(index, modalId, event)}
                     onhandleCloseDetail={() => handleCloseDetail(index)}
                     checkUser={checkUser}
-                    // onCheckUserDemand={() =>
-                    //   checkUserDemand(index, modalId, event)
-                    // }
                   />
-                </Suspense>
-              </CardItem>
+                </LazyCardItem>
+              </Suspense>
             );
           })
         : null}
