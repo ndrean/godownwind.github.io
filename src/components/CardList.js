@@ -350,7 +350,7 @@ function CardList({ user, users, events, ...props }) {
         </Button>
 
         {!loading && (
-          <Suspense fallback={<span>Loading 4...</span>}>
+          <Suspense fallback={<span>Loading</span>}>
             <LazyEventModal show={show && !loading} onhandleClose={handleClose}>
               {/* this child goes into the body of the modal */}
 
@@ -374,14 +374,11 @@ function CardList({ user, users, events, ...props }) {
         )}
       </Row>
 
-      <br />
-
       {events
         ? events.map((event, index) => {
             return (
-              <Suspense fallback={<Loader />}>
+              <Suspense fallback={<Loader />} key={event.id}>
                 <LazyCardItem
-                  key={event.id}
                   event={event}
                   onhandleRemove={(e) => handleRemove(e, event)}
                   onhandleEdit={() => handleEdit(event)}

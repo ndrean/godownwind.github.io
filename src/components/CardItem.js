@@ -17,7 +17,6 @@ function CardItem({ event, ...props }) {
       <Row>
         <Card
           border="primary"
-          key={props.key}
           style={{ boxShadow: "1px 1px 1px rgba(0,0,0,0.2)" }}
         >
           {/* <CLImage cloudname={props.cloudName} publicID={props.publicID} width="330" height="270" crop="scale" alt="background image" loading="lazy"/> */}

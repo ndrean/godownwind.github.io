@@ -10,6 +10,7 @@ export default function MapForm(props) {
         <Form.Label>Starting point:</Form.Label>
         <Form.Control
           as="textarea"
+          style={{ boxShadow: "1px 1px 1px rgba(0,0,0,0.2)" }}
           rows="2"
           aria-label="start point address"
           readOnly
@@ -27,6 +28,7 @@ export default function MapForm(props) {
           readOnly
           required
           value={props.endPoint ? props.endPoint.end : ""}
+          style={{ boxShadow: "1px 1px 1px rgba(0,0,0,0.2)" }}
         />
       </Form.Group>
 
@@ -38,6 +40,7 @@ export default function MapForm(props) {
           value={props.distance}
           name="trip length"
           readOnly
+          style={{ boxShadow: "1px 1px 1px rgba(0,0,0,0.2)" }}
         />
       </Form.Group>
 
@@ -49,6 +52,7 @@ export default function MapForm(props) {
         required
         onChange={props.onhandleDate}
         isInvalid={!props.date}
+        style={{ boxShadow: "1px 1px 1px rgba(0,0,0,0.2)" }}
       />
 
       <Form.Control.Feedback type="invalid">

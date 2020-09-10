@@ -35,8 +35,8 @@ export default function Geoloc() {
       {/* <PositionProvider value={[gps, setGps]}> */}
       <Container>
         <Row style={{ justifyContent: "center" }}>
-          <Button aria-label="gelocalisation" onClick={() => setAccept(true)}>
-            Enable geolocalisation
+          <Button aria-label="gelocation" onClick={() => setAccept(true)}>
+            Enable geolocation
           </Button>
         </Row>
 
@@ -51,7 +51,7 @@ export default function Geoloc() {
           ) : (
             <>
               <br />
-              <p>Geolocalizing...</p>
+              <p>Geolocating...</p>
             </>
           )
         ) : null}

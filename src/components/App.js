@@ -14,9 +14,9 @@ const LazyCardList = lazy(() => import("./CardList"));
 
 const options = {
   method: "GET",
-  headers: new Headers({
+  headers: {
     "Content-Type": "application/json",
-  }),
+  },
 };
 
 export default function App() {
@@ -39,6 +39,9 @@ export default function App() {
 
   // fetch Facebook appID from backend
   useEffect(() => {
+    // options.headers = { ...options.headers, "Access-Control-Max-Age": 0 };
+    // doesn't remove preflight with OPTIONS
+
     fetch(urlBack + "/fbParams", options)
       .then((res) => res.json())
       .then((res) =>

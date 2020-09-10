@@ -278,7 +278,7 @@ fields=id,name,email,picture.width(640).height(640)`);
           name="login out"
           onClick={logOut}
           style={{
-            padding: "3px",
+            padding: "1px",
             margin: "auto",
             width: "auto",
             border: "none",
