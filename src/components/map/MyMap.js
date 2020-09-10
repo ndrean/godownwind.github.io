@@ -345,6 +345,7 @@ export default function MyMap(props) {
           setEndPoint("");
           setDate("");
           setTripLength(0);
+          markersLayer.current.clearLayers();
         }
       })
       .catch((err) => console.log(err));
