@@ -50,7 +50,7 @@ export default React.memo(function MyNavBar(props) {
             <FaAlignJustify size={22} />
           </Button>
         </Link>
-        <Link to="/Map" style={{ padding: "5px" }}>
+        <Link to="/map" style={{ padding: "5px" }}>
           <Button
             variant="outline-light"
             type="submit"

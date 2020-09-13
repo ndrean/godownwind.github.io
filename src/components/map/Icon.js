@@ -5,7 +5,7 @@ const greenIcon = new Icon({
   shadowUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
   iconSize: [20, 33],
-  iconAnchor: [12, 12],
+  iconAnchor: [12, 31],
   popupAnchor: [1, -34],
   shadowSize: [33, 33],
 });
@@ -26,7 +26,7 @@ const redIcon = new Icon({
   shadowUrl:
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
   iconSize: [20, 33],
-  iconAnchor: [12, 11],
+  iconAnchor: [12, 31],
   popupAnchor: [1, -34],
   shadowSize: [33, 33],
 });

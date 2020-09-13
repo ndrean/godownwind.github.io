@@ -338,7 +338,12 @@ function CardList({ user, users, events, ...props }) {
         <Button
           variant="outline-dark"
           onClick={handleShow}
-          style={{ fontSize: "30px", boxShadow: "2px 2px 2px rgba(0,0,0,0.3)" }}
+          style={{
+            margin: "10px",
+            backgroundColor: "rgb(254, 249, 231 )", //"#EFEFEF",
+            fontSize: "30px",
+            boxShadow: "2px 2px 2px rgba(0,0,0,0.3)",
+          }}
           aria-label="event create"
         >
           {!loading && (

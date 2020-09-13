@@ -10,7 +10,7 @@ import React, {
 import "leaflet/dist/leaflet.css";
 import "esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css";
 import L from "leaflet";
-import * as esriGeocode from "esri-leaflet-geocoder";
+import * as EsriGeocode from "esri-leaflet-geocoder";
 
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -32,6 +32,12 @@ export default function MyMap(props) {
   const [endPoint, setEndPoint] = useState("");
   const [date, setDate] = useState("");
   const [tripLength, setTripLength] = useState(0);
+  // const [startEndIds, setStartEndIds] = useState({ start: null, end: null });
+  /* const [startEndCoords, setStartEndCoords] = useState({
+    start: null,
+    end: null,
+  });
+  */
 
   const mapRef = useRef(null);
   const markersLayer = useRef(L.layerGroup([]));
@@ -42,7 +48,7 @@ export default function MyMap(props) {
     const center = gps.Lat ? [gps.Lat, gps.Lng] : [45, 1];
     mapRef.current = L.map("map", {
       center: center,
-      zoom: 4,
+      zoom: 6,
       layers: [
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           attribution:
@@ -54,17 +60,15 @@ export default function MyMap(props) {
     L.control.scale().addTo(mapRef.current);
 
     //github.com/Esri/esri-leaflet-geocoder
-    searchCtrlRef.current = esriGeocode
-      .geosearch({
-        expanded: true,
-        zoomToResult: true,
-        position: "topright",
-        placeholder: "Search City / address",
-        title: "Search",
-        collapseAfterResult: true,
-        allowMultipleResults: true,
-      })
-      .addTo(mapRef.current);
+    searchCtrlRef.current = EsriGeocode.geosearch({
+      expanded: true,
+      zoomToResult: false,
+      position: "topright",
+      placeholder: "Search City / address",
+      title: "Search",
+      collapseAfterResult: true,
+      allowMultipleResults: true,
+    }).addTo(mapRef.current);
 
     return () => {
       mapRef.current.remove();
@@ -72,20 +76,22 @@ export default function MyMap(props) {
     };
   }, [gps]);
 
-  let startEndIds = {};
-  let startEndCoords = [];
+  const startEndIds = {};
+  const startEndCoords = {};
 
   const actionMarker = React.useCallback(
     ({ searchMarker, getId, getValue, onOpenValue, place, coords }) => {
-      //console.log(startEndIds, startEndCoords);
+      console.log("_action_");
       switch (getValue) {
         case "start":
+          //setStartEndIds((prev) => ({ ...prev, start: L.stamp(searchMarker) }));
           startEndIds.start = L.stamp(searchMarker);
           if (onOpenValue === "end" && startEndIds.end === getId) {
             setEndPoint("");
-            startEndIds.end = null;
+            // setStartEndIds((prev) => ({ ...prev, end: null }));
             startEndCoords.end = null;
           }
+          // setStartEndCoords((prev) => ({ ...prev, start: coords }));
           startEndCoords.start = coords;
           setStartPoint((prev) => ({
             ...prev,
@@ -96,12 +102,16 @@ export default function MyMap(props) {
           break;
 
         case "end":
+          // setStartEndIds((prev) => ({ ...prev, end: L.stamp(searchMarker) }));
           startEndIds.end = L.stamp(searchMarker);
           if (onOpenValue === "start" && startEndIds.start === getId) {
             setStartPoint("");
+            // setStartEndIds((prev) => ({ ...prev, start: null }));
             startEndIds.start = null;
+            // setStartEndCoords((prev) => ({ ...prev, start: null }));
             startEndCoords.start = null;
           }
+          // setStartEndCoords((prev) => ({ ...prev, end: coords }));
           startEndCoords.end = coords;
           setEndPoint((prev) => ({
             ...prev,
@@ -113,23 +123,28 @@ export default function MyMap(props) {
 
         case "remove":
           if (onOpenValue === "start") {
-            //console.log("rm start");
+            // setStartEndCoords((prev) => ({ ...prev, start: null }));
             startEndCoords.start = null;
+            // setStartEndIds((prev) => ({ ...prev, start: null }));
             startEndIds.start = null;
             setStartPoint(null);
           } else if (onOpenValue === "end") {
-            //console.log("rm end");
+            // setStartEndCoords((prev) => ({ ...prev, end: null }));
             startEndCoords.end = null;
+            // setStartEndIds((prev) => ({ ...prev, end: null }));
             startEndIds.end = null;
             setEndPoint(null);
           }
-          return markersLayer.current.removeLayer(searchMarker);
+          markersLayer.current.removeLayer(searchMarker);
+          console.log("remove");
+          return;
 
         default:
           console.log("default");
-          return markersLayer.current.removeLayer(searchMarker);
+          markersLayer.current.removeLayer(searchMarker);
+          return;
       }
-      console.log(startEndIds);
+      console.log(startEndCoords);
       const keys = Object.keys(startEndCoords);
       const values = Object.values(startEndCoords);
       if (
@@ -146,7 +161,6 @@ export default function MyMap(props) {
       } else {
         setTripLength(0);
       }
-      return;
     },
     []
   );
@@ -157,6 +171,7 @@ export default function MyMap(props) {
       let onOpenValue = "";
       //on popup open, catch the state (start/end) of the point if any
       popup.on("popupopen", () => {
+        console.log("_open_");
         const typeRadio = document.body.querySelectorAll('input[type="radio"]');
         onOpenValue = [...typeRadio].find((t) => t.checked === true);
         if (onOpenValue) onOpenValue = onOpenValue.value;
@@ -164,7 +179,9 @@ export default function MyMap(props) {
 
       // on popup close, update a point to start/end and set state
       popup.on("popupclose", (e) => {
-        const getId = L.stamp(e.target); // === e.target._leaflet_id;
+        console.log("_close_");
+        // === e.target._leaflet_id ===markersLayer.current.getLayerId(searchMarker)
+        const getId = L.stamp(e.target);
         const typeRadio = document.body.querySelectorAll('input[type="radio"]');
         let getValue = [...typeRadio].find((t) => t.checked === true);
         if (getValue !== undefined) getValue = getValue.value;
@@ -198,17 +215,19 @@ export default function MyMap(props) {
       content.innerHTML = `<p>${e.results[0].text}</p> ${html}`;
       const popup = resultMarker.bindPopup(content);
       popup.openPopup();
-      if (popup) {
-        console.log("pop");
-        handlePopup({ popup, place, coords, searchMarker: resultMarker });
-      }
+      handlePopup({
+        popup,
+        place,
+        coords,
+        searchMarker: resultMarker,
+      });
     });
   }, [handlePopup]);
 
   const reverseGeocode = useCallback(
     function (coords, searchMarker) {
-      esriGeocode
-        .geocodeService()
+      console.log("_reverse_");
+      EsriGeocode.geocodeService()
         .reverse()
         .latlng(coords)
         .run((error, result) => {
@@ -233,7 +252,12 @@ export default function MyMap(props) {
 
           const popup = searchMarker.bindPopup(content);
           popup.openPopup();
-          handlePopup({ popup, place, coords, searchMarker });
+          handlePopup({
+            popup,
+            place,
+            coords,
+            searchMarker,
+          });
         });
     },
     [handlePopup]
@@ -241,7 +265,8 @@ export default function MyMap(props) {
 
   useEffect(() => {
     mapRef.current.on("click", (e) => {
-      const searchMarker = L.marker(e.latlng, { icon: blueIcon }).addTo(
+      console.log("_clic_");
+      const searchMarker = new L.marker(e.latlng, { icon: blueIcon }).addTo(
         markersLayer.current
       );
       markersLayer.current.addTo(mapRef.current);
@@ -250,7 +275,6 @@ export default function MyMap(props) {
   }, [reverseGeocode]);
 
   // find address on click with reverseGeocode (ESRI)
-
   const invertArray = ([a, b]) => [b, a];
 
   const onEachFeature = useCallback((feature) => {

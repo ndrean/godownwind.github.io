@@ -119,6 +119,7 @@ export default function App() {
   return (
     <Suspense fallback={<Loader />}>
       <Switch>
+        {/* <Routes> */}
         <Route
           exact
           path="/"
@@ -160,7 +161,7 @@ export default function App() {
           )}
         />
         <Route
-          path="/Map"
+          path="/map"
           render={() => (
             <LazyLayout
               onhandleToken={handleToken}
@@ -181,6 +182,7 @@ export default function App() {
             </LazyLayout>
           )}
         />
+        {/* </Routes> */}
       </Switch>
     </Suspense>
   );

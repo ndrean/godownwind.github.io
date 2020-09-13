@@ -63,6 +63,10 @@ Works only in 'build' mode.
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
 
+## Favicon
+
+<https://realfavicongenerator.net/favicon_result?file_id=p1ei367ann14qd3bm1654a6b4v36#.X13MVpMzYWo>
+
 ### Deployment
 
 This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
