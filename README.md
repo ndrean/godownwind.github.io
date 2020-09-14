@@ -54,9 +54,9 @@ const LazyComponent = React.lazy(()=> import('./something'))
 
 # Lodash
 
-'lodash' is an available livrary in CRA. Only needed to include the desired import: `import 'sortBy' from "lodash/sortBy"`.
+'lodash' is an available library in CRA. Only needed to include the desired import: `import 'sortBy' from "lodash/sortBy"`.
 
-# Serving build
+# Serving build with `static-server`
 
 With the conflict of Ruby's `serve', we use `static-server` to run the build file from the folder '\build`.
 <https://www.npmjs.com/package/static-server>

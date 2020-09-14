@@ -1,5 +1,4 @@
 export default function convertToGeojson(data) {
-  console.log("_convert_");
   const geojsonElt = {
     type: "Feature",
     geometry: {

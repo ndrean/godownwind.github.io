@@ -2,7 +2,7 @@ import React, { useState, useEffect, Suspense, lazy } from "react";
 
 import { Switch, Route } from "react-router-dom";
 
-//import _ from "lodash";
+// lodash available within CRA ;
 import sortBy from "lodash/sortBy";
 
 import Loader from "../helpers/Loader";
@@ -23,7 +23,6 @@ const options = {
 };
 
 export default function App() {
-  console.log("__App__");
   const [users, setUsers] = useState("");
   const [events, setEvents] = useState("");
   const [user, setUser] = useState("");
@@ -42,9 +41,6 @@ export default function App() {
 
   // fetch Facebook appID from backend
   useEffect(() => {
-    // options.headers = { ...options.headers, "Access-Control-Max-Age": 0 };
-    // doesn't remove preflight with OPTIONS
-
     fetch(urlBack + "/fbParams", options)
       .then((res) => res.json())
       .then((res) =>
@@ -58,7 +54,7 @@ export default function App() {
       );
   }, []);
 
-  // fetch Cloudinary credentials
+  // fetch Cloudinary credentials: cloudname
   useEffect(() => {
     fetch(urlBack + "/CLParams", options)
       .then((res) => res.json())
@@ -92,7 +88,7 @@ export default function App() {
         return await query.json();
       } catch (err) {
         setUsers(null);
-        throw new Error(err);
+        console.log(err);
       }
     }
     fetchData().then((res) => {
@@ -105,20 +101,20 @@ export default function App() {
   const removeUser = () => setUser("");
 
   const handleRemoveEvent = (event) => {
-    setEvents((prev) => [...prev].filter((ev) => ev.id !== event.id));
+    setEvents((prev) => prev.filter((ev) => ev.id !== event.id));
   };
 
   function handleUpdateEvents(event) {
     setEvents((prev) => {
       const filteredEvents = prev.filter((evt) => evt.id !== event.id);
-      let newEvents = [...filteredEvents, event];
+      const newEvents = [...filteredEvents, event];
       return sortBy(newEvents, ["itinary.date", "user.email"]);
     });
   }
 
   function handleAddEvent(event) {
     setEvents((prev) => {
-      let newEvents = [...prev, event];
+      const newEvents = [...prev, event];
       return sortBy(newEvents, ["itinary.date", "user.email"]);
     });
   }
@@ -126,7 +122,6 @@ export default function App() {
   return (
     <Suspense fallback={<Loader />}>
       <Switch>
-        {/* <Routes> */}
         <Route
           exact
           path="/"
@@ -169,6 +164,7 @@ export default function App() {
           )}
         />
         <Route
+          exact
           path="/map"
           render={() => (
             <LazyLayout
@@ -181,7 +177,6 @@ export default function App() {
             >
               <LazyMap
                 user={user}
-                // users={users}
                 token={jwtToken}
                 events={events}
                 onhandleAddEvent={handleAddEvent}
@@ -190,7 +185,6 @@ export default function App() {
             </LazyLayout>
           )}
         />
-        {/* </Routes> */}
       </Switch>
     </Suspense>
   );

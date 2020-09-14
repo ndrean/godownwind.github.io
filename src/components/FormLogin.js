@@ -7,14 +7,10 @@ import urlBack from "../helpers/urlBack";
 import ReactModalLogin from "react-modal-login";
 
 export default React.memo(function LoginForm({ user, ...props }) {
-  console.log("__form__");
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
-  //const [result, setResult] = useState("");
-
-  //const [userData, setUserData] = useContext(UserContext);
 
   function openModal() {
     setShowModal(true);
@@ -26,7 +22,6 @@ export default React.memo(function LoginForm({ user, ...props }) {
   }
 
   function onLogin() {
-    //console.log("_onLogin_");
     const email = document.querySelector("#email").value;
     const password = document.querySelector("#password").value;
     if (!email || !password) {
@@ -37,7 +32,6 @@ export default React.memo(function LoginForm({ user, ...props }) {
   }
 
   function onRegister() {
-    //console.log("_onRegister_");
     const email = document.querySelector("#email").value;
     const password = document.querySelector("#password").value;
     if (!email || !password) {
@@ -207,7 +201,6 @@ fields=id,name,email,picture.width(640).height(640)`);
         if (getUserToken.ok) {
           // need to have mail checked to enter
           const { jwt } = await getUserToken.json();
-          console.log(jwt);
           const getCurrentUser = await fetch(urlBack + "/profile", {
             headers: { authorization: "Bearer " + jwt },
           });
