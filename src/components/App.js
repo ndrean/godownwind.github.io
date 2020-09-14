@@ -2,6 +2,9 @@ import React, { useState, useEffect, Suspense, lazy } from "react";
 
 import { Switch, Route } from "react-router-dom";
 
+//import _ from "lodash";
+import sortBy from "lodash/sortBy";
+
 import Loader from "../helpers/Loader";
 import urlBack from "../helpers/urlBack";
 
@@ -28,7 +31,7 @@ export default function App() {
   //const [loading, setLoading] = useState(false);
   const [jwtToken, setJwtToken] = useState("");
   const [fbConfig, setFbConfig] = useState("");
-  //const [CLCreds, setCLCreds] = useState("");
+  const [CloudName, setCloudName] = useState("");
 
   const handleAddUser = (currentUser) => {
     setUser(currentUser);
@@ -55,15 +58,14 @@ export default function App() {
       );
   }, []);
 
-  /* fetch Cloudinary credentials
+  // fetch Cloudinary credentials
   useEffect(() => {
     fetch(urlBack + "/CLParams", options)
       .then((res) => res.json())
       .then((res) => {
-        setCLCreds(res);
+        setCloudName(res.CLOUD_NAME);
       });
   }, []);
-  */
 
   // fetch Events from db
   useEffect(() => {
@@ -71,7 +73,8 @@ export default function App() {
       try {
         const reqEvents = new Request(urlBack + "/events", options);
         const query = await fetch(reqEvents);
-        return await query.json();
+        let result = await query.json();
+        return sortBy(result, ["itinary.date", "user.email"]);
       } catch (err) {
         setEvents(null);
         console.log(err);
@@ -107,13 +110,17 @@ export default function App() {
 
   function handleUpdateEvents(event) {
     setEvents((prev) => {
-      const newEvents = prev.filter((evt) => evt.id !== event.id);
-      setEvents([...newEvents, event]);
+      const filteredEvents = prev.filter((evt) => evt.id !== event.id);
+      let newEvents = [...filteredEvents, event];
+      return sortBy(newEvents, ["itinary.date", "user.email"]);
     });
   }
 
   function handleAddEvent(event) {
-    setEvents((prev) => [...prev, event]);
+    setEvents((prev) => {
+      let newEvents = [...prev, event];
+      return sortBy(newEvents, ["itinary.date", "user.email"]);
+    });
   }
 
   return (
@@ -156,6 +163,7 @@ export default function App() {
                 onhandleAddEvent={handleAddEvent}
                 onhandleRemoveEvent={handleRemoveEvent}
                 onhandleUpdateEvents={handleUpdateEvents}
+                cloudname={CloudName}
               />
             </LazyLayout>
           )}

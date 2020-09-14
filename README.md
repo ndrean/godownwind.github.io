@@ -52,6 +52,10 @@ const LazyComponent = React.lazy(()=> import('./something'))
 
 `yarn add @loadable/component``
 
+# Lodash
+
+'lodash' is an available livrary in CRA. Only needed to include the desired import: `import 'sortBy' from "lodash/sortBy"`.
+
 # Serving build
 
 With the conflict of Ruby's `serve', we use `static-server` to run the build file from the folder '\build`.

@@ -103,7 +103,6 @@ const EventForm = (props) => {
           <Form.Label>
             <span>Add a ... </span>
             <FaCameraRetro size={24} /> ?
-            {/* <FontAwesomeIcon icon="camera" size="2x" /> */}
             <Form.File
               type="file"
               name="pic"
@@ -135,7 +134,6 @@ const EventForm = (props) => {
             //disabled={loading}
           >
             <FaPaperPlane size={24} />
-            {/* <FontAwesomeIcon icon="paper-plane" /> Submit */}
           </Button>
         </Row>
       </Form>

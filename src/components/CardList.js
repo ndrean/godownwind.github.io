@@ -12,7 +12,7 @@ import urlBack from "../helpers/urlBack";
 import Loader from "../helpers/Loader";
 import EventForm from "./EventForm";
 import fetchModif from "../helpers/fetchModif"; // returns data after PATCH or POST depending upon endpoint
-import cloudName from "../helpers/cloudName"; // for Cloudinary
+//import cloudName from "../helpers/cloudName"; // for Cloudinary
 
 // const LazyEventForm = React.lazy(() => import("./EventForm"));
 const LazyEventModal = React.lazy(() => import("./EventModal"));
@@ -110,9 +110,6 @@ function CardList({ user, users, events, ...props }) {
       }
 
       // the back-end needs the arrays to be split (otherwise, to be done by the backend...)
-      console.log(
-        itinary.start_gps && itinary.end_gps && itinary.start_gps.length > 0
-      );
       // to avoid [null,null] if create/edit and geojson conversion for the map
       if (
         itinary.start_gps &&
@@ -157,10 +154,13 @@ function CardList({ user, users, events, ...props }) {
         newfd.append("file", fileCL);
         newfd.append("upload_preset", "ml_default");
         // direct call to the CL REST API
-        return fetch(`https://api.cloudinary.com/v1_1/${cloudName}/upload/`, {
-          method: "POST",
-          body: newfd,
-        })
+        return fetch(
+          `https://api.cloudinary.com/v1_1/${props.cloudname}/upload/`,
+          {
+            method: "POST",
+            body: newfd,
+          }
+        )
           .then((res) => res.json())
           .then((resCL) => {
             setPublicID(resCL.public_id);
@@ -391,7 +391,6 @@ function CardList({ user, users, events, ...props }) {
                   <LazyDetails
                     event={event}
                     index={index}
-                    cloudName={cloudName}
                     modalId={modalId}
                     publicID={publicID}
                     onhandleShowDetail={() => handleShowDetail(index)}
