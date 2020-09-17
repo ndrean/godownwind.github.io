@@ -86,7 +86,7 @@ function CardList({ user, users, events, ...props }) {
           if (response.status === 401) {
             return returnUnauthorized();
           }
-          props.onhandleRemoveEvent(event);
+          props.onhandleRemoveEvent(response); // before: event
         }
       } catch (err) {
         console.log(err);
@@ -306,7 +306,7 @@ function CardList({ user, users, events, ...props }) {
         ...event,
         participants: [...participants, pushedParticipant],
       };
-      props.onhandleUpdateEvents(pushedEvent);
+      props.onhandleUpdateEvent(pushedEvent);
       handleCloseDetail();
     } else {
       window.alert("Not authorized");

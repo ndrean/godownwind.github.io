@@ -14,6 +14,7 @@ const LazyLayout = lazy(() => import("./nav/Layout"));
 const LazyMap = lazy(() => import("./map/MyMap"));
 const LazyHome = lazy(() => import("./nav/Home"));
 const LazyCardList = lazy(() => import("./CardList"));
+const LazyRouteError = lazy(() => import("./nav/RouteError"));
 
 const options = {
   method: "GET",
@@ -51,7 +52,8 @@ export default function App() {
           version: "v8.0",
           scope: "email",
         })
-      );
+      )
+      .catch((err) => console.log(err));
   }, []);
 
   // fetch Cloudinary credentials: cloudname
@@ -60,7 +62,8 @@ export default function App() {
       .then((res) => res.json())
       .then((res) => {
         setCloudName(res.CLOUD_NAME);
-      });
+      })
+      .catch((err) => console.log(err));
   }, []);
 
   // fetch Events from db
@@ -68,7 +71,12 @@ export default function App() {
     async function fetchData() {
       try {
         const reqEvents = new Request(urlBack + "/events", options);
-        const query = await fetch(reqEvents);
+        const query = await fetch(reqEvents).catch((err) => {
+          console.log(err);
+        });
+        if (!query) {
+          return;
+        }
         let result = await query.json();
         return sortBy(result, ["itinary.date", "user.email"]);
       } catch (err) {
@@ -77,14 +85,19 @@ export default function App() {
       }
     }
     fetchData().then((res) => setEvents(res));
-  }, [user]);
+  }, [user, setEvents]);
 
   // fetch Users from db
   useEffect(() => {
     async function fetchData() {
       try {
         const reqUsers = new Request(urlBack + "/users", options);
-        const query = await fetch(reqUsers);
+        const query = await fetch(reqUsers).catch((err) => {
+          console.log(err);
+        });
+        if (!query) {
+          return;
+        }
         return await query.json();
       } catch (err) {
         setUsers(null);
@@ -100,23 +113,36 @@ export default function App() {
 
   const removeUser = () => setUser("");
 
-  const handleRemoveEvent = (event) => {
-    setEvents((prev) => prev.filter((ev) => ev.id !== event.id));
+  const handleRemoveEvent = (newevents) => {
+    // event
+    setEvents(sortBy(newevents, ["itinary.date", "user.email"]));
+    // setEvents((prev) => prev.filter((ev) => ev.id !== event.id));
   };
 
-  function handleUpdateEvents(event) {
+  function handleUpdateEvents(newevents) {
+    // before event
+    setEvents(sortBy(newevents, ["itinary.date", "user.email"]));
+    // setEvents((prev) => {
+    //   const filteredEvents = prev.filter((evt) => evt.id !== event.id);
+    //   const newEvents = [...filteredEvents, event];
+    //   return sortBy(newEvents, ["itinary.date", "user.email"]);
+    // });
+  }
+
+  function handleUpdateEvent(event) {
     setEvents((prev) => {
       const filteredEvents = prev.filter((evt) => evt.id !== event.id);
       const newEvents = [...filteredEvents, event];
       return sortBy(newEvents, ["itinary.date", "user.email"]);
     });
   }
-
-  function handleAddEvent(event) {
-    setEvents((prev) => {
-      const newEvents = [...prev, event];
-      return sortBy(newEvents, ["itinary.date", "user.email"]);
-    });
+  function handleAddEvent(newevents) {
+    // before event
+    setEvents(sortBy(newevents, ["itinary.date", "user.email"]));
+    // setEvents((prev) => {
+    //   const newEvents = [...prev, event];
+    //   return sortBy(newEvents, ["itinary.date", "user.email"]);
+    // });
   }
 
   return (
@@ -158,6 +184,7 @@ export default function App() {
                 onhandleAddEvent={handleAddEvent}
                 onhandleRemoveEvent={handleRemoveEvent}
                 onhandleUpdateEvents={handleUpdateEvents}
+                onhandleUpdateEvent={handleUpdateEvent}
                 cloudname={CloudName}
               />
             </LazyLayout>
@@ -185,6 +212,11 @@ export default function App() {
             </LazyLayout>
           )}
         />
+        <Route>
+          <LazyLayout>
+            <LazyRouteError />
+          </LazyLayout>
+        </Route>
       </Switch>
     </Suspense>
   );

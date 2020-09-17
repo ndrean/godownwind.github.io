@@ -153,9 +153,9 @@ fields=id,name,email,picture.width(640).height(640)`);
               });
 
               if (getUserToken.ok) {
-                console.log("** updated in db, waiting for mail confirmation");
+                // console.log("** updated in db, waiting for mail confirmation");
                 const { jwt } = await getUserToken.json();
-                console.log(jwt);
+                // console.log(jwt);
 
                 // check in db if email_confirmed with the token
                 const getCurrentUser = await fetch(urlBack + "/profile", {
@@ -167,7 +167,7 @@ fields=id,name,email,picture.width(640).height(640)`);
                   // console.log("__updated__");
                   saveUser(jwt, currentUser);
                 } else {
-                  onLoginFail("Check your mail to confirm password update 2");
+                  onLoginFail("Check your mail to confirm password update");
                 }
               } else {
                 onLoginFail("Not existing");
@@ -244,7 +244,7 @@ fields=id,name,email,picture.width(640).height(640)`);
     props.onhandleToken("");
     props.onRemoveUser("");
     //setResult("");
-    window.alert("bye");
+    window.alert("Bye");
   }
 
   return (

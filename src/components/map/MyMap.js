@@ -133,12 +133,10 @@ export default function MyMap(props) {
             startEndIds.end = null;
             setEndPoint(null);
           }
-          markersLayer.current.removeLayer(searchMarker);
-          return;
+          return markersLayer.current.removeLayer(searchMarker);
 
         default:
-          markersLayer.current.removeLayer(searchMarker);
-          return;
+          return markersLayer.current.removeLayer(searchMarker);
       }
 
       console.log(startEndCoords);
@@ -275,7 +273,6 @@ export default function MyMap(props) {
         } else return;
       })
       .then((data) => {
-        // with LineString => polyline, & markers to MapRef.current
         L.geoJSON(data, {
           onEachFeature: onEachFeature,
         }).addTo(mapRef.current);
