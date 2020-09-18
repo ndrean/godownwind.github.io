@@ -1,20 +1,26 @@
 import React, { useState, useEffect, Suspense, lazy } from "react";
 
-import { Switch, Route } from "react-router-dom";
+// import { Switch, Route } from "react-router-dom";
 
 // lodash available within CRA ;
 import sortBy from "lodash/sortBy";
+
+import { Card, Image } from "react-bootstrap";
 
 import Loader from "../helpers/Loader";
 import urlBack from "../helpers/urlBack";
 
 import "../index.css";
 
-const LazyLayout = lazy(() => import("./nav/Layout"));
-const LazyMap = lazy(() => import("./map/MyMap"));
-const LazyHome = lazy(() => import("./nav/Home"));
-const LazyCardList = lazy(() => import("./CardList"));
-const LazyRouteError = lazy(() => import("./nav/RouteError"));
+// const LazyLayout = lazy(() => import("./nav/Layout"));
+// import MyNavBar from "./nav/MyNavBar";
+
+const LazyMyNavBar = lazy(() => import("./nav/MyNavBar"));
+const LazyRoutes = lazy(() => import("./Routes"));
+// const LazyMap = lazy(() => import("./map/MyMap"));
+// const LazyHome = lazy(() => import("./nav/Home"));
+// const LazyCardList = lazy(() => import("./CardList"));
+// const LazyRouteError = lazy(() => import("./nav/RouteError"));
 
 const options = {
   method: "GET",
@@ -24,7 +30,7 @@ const options = {
 };
 
 export default function App() {
-  console.log("_app_");
+  console.log("_App_");
   const [users, setUsers] = useState("");
   const [events, setEvents] = useState("");
   const [user, setUser] = useState("");
@@ -32,7 +38,7 @@ export default function App() {
   //const [loading, setLoading] = useState(false);
   const [jwtToken, setJwtToken] = useState("");
   const [fbConfig, setFbConfig] = useState("");
-  const [CloudName, setCloudName] = useState("");
+  const [cloudName, setCloudName] = useState("");
 
   const handleAddUser = (currentUser) => {
     setUser(currentUser);
@@ -147,78 +153,25 @@ export default function App() {
   }
 
   return (
-    <Suspense fallback={<Loader />}>
-      <Switch>
-        <Route
-          exact
-          path="/"
-          render={() => (
-            <LazyLayout
-              onhandleToken={handleToken}
-              onhandleAddUser={handleAddUser}
-              onRemoveUser={removeUser}
-              fbConfig={fbConfig}
-              user={user}
-              token={jwtToken}
-            >
-              <LazyHome />
-            </LazyLayout>
-          )}
+    <>
+      <Suspense fallback={<Loader />}>
+        <LazyMyNavBar
+          fbConfig={fbConfig}
+          handleAddUser={handleAddUser}
+          handleToken={handleToken}
         />
-        <Route
-          exact
-          path="/cardlist"
-          render={() => (
-            <LazyLayout
-              onhandleToken={handleToken}
-              onhandleAddUser={handleAddUser}
-              onRemoveUser={removeUser}
-              fbConfig={fbConfig}
-              token={jwtToken}
-              user={user}
-            >
-              <LazyCardList
-                users={users}
-                token={jwtToken}
-                user={user}
-                events={events}
-                onhandleAddEvent={handleAddEvent}
-                onhandleRemoveEvent={handleRemoveEvent}
-                onhandleUpdateEvents={handleUpdateEvents}
-                onhandleUpdateEvent={handleUpdateEvent}
-                cloudname={CloudName}
-              />
-            </LazyLayout>
-          )}
+        <LazyRoutes
+          // handleToken={handleToken}
+          handleUpdateEvents={handleUpdateEvents}
+          handleUpdateEvent={handleUpdateEvent}
+          handleAddEvent={handleAddEvent}
+          users={users}
+          events={events}
+          user={user}
+          jwtToken={jwtToken}
+          cloudName={cloudName}
         />
-        <Route
-          exact
-          path="/map"
-          render={() => (
-            <LazyLayout
-              onhandleToken={handleToken}
-              onhandleAddUser={handleAddUser}
-              onRemoveUser={removeUser}
-              fbConfig={fbConfig}
-              user={user}
-              token={jwtToken}
-            >
-              <LazyMap
-                user={user}
-                token={jwtToken}
-                events={events}
-                onhandleAddEvent={handleAddEvent}
-                onhandleUpdateEvents={handleUpdateEvents}
-              />
-            </LazyLayout>
-          )}
-        />
-        <Route>
-          <LazyLayout>
-            <LazyRouteError />
-          </LazyLayout>
-        </Route>
-      </Switch>
-    </Suspense>
+      </Suspense>
+    </>
   );
 }

@@ -1,16 +1,15 @@
 import React, { useState } from "react";
 import FacebookLogin from "react-facebook-login";
 // /dist/facebook-login-render-props";
-import { FaFacebookF } from "react-icons/fa";
-import { Card, Image } from "react-bootstrap";
+// import { FaFacebookF } from "react-icons/fa";
+import { Button } from "react-bootstrap";
 import urlBack from "../helpers/urlBack";
 //import "./App.css";
 
-function FBLogin(props) {
+export default function FBLogin(props) {
   console.log("__FB__");
   const [login, setLogin] = useState(false);
   const [data, setData] = useState({});
-  const [picture, setPicture] = useState("");
 
   const checkUser = async (response) => {
     const fbUserData = {
@@ -24,7 +23,6 @@ function FBLogin(props) {
       body: JSON.stringify(fbUserData),
       headers: { "Content-Type": "application/json" },
     });
-    console.log(queryAppToken);
     if (queryAppToken.ok) {
       const { access_token } = await queryAppToken.json();
       if (access_token) {
@@ -33,7 +31,6 @@ function FBLogin(props) {
             headers: { authorization: "Bearer " + access_token },
           });
           const currentUser = await getCurrentUser.json();
-          console.log(currentUser);
           if (currentUser.confirm_email && !currentUser.confirm_token) {
             saveUser(access_token, currentUser);
           } else {
@@ -52,20 +49,17 @@ function FBLogin(props) {
 
   async function saveUser(jwt, user) {
     // localStorage.setItem("jwt", true);
-    props.onhandleToken(jwt);
+    props.handleToken(jwt);
     // localStorage.setItem("user", user.email);
     alert(`Welcome ${user.email}`);
-    // take user up tp App
     props.handleAddUser(user);
   }
 
   const responseFacebook = (response) => {
-    console.log(response);
     setData(response);
-    setPicture(response.picture.data.url);
     if (response.accessToken) {
       setLogin(true);
-      // checkUser(response);
+      checkUser(response);
       // props.onSettingUser({
       //   email: response.email,
       //   fbId: response.id,
@@ -77,32 +71,29 @@ function FBLogin(props) {
     }
   };
 
+  //style={{ width: "100%", justifyContent: "center" }}
+  //{366589421180047}
   return (
-    <Card style={{ width: "100%", justifyContent: "center" }}>
-      <Card.Header>
-        F
-        {!login && props.fbConfig.appID && (
-          <FacebookLogin
-            buttonStyle={{ padding: "6px" }}
-            appId={props.fbConfig.appID}
-            autoLoad //={false}
-            fields="name,email, picture"
-            scope="public_profile"
-            //onClick={componentClicked}
-            callback={responseFacebook}
-            icon="fa-facebook"
-            //textButton={"Login"}
-            // size="small"
-            // render={(renderProps) => (
-            //   <button onClick={renderProps.onClick}>FB</button>
-            // )}
-          />
-        )}
-        {login && <Image src={picture} roundedCircle />}
-      </Card.Header>
-      <Card.Body>U {login && <Card.Text>{data.name}</Card.Text>}</Card.Body>
-    </Card>
+    <>
+      {!login && (
+        <FacebookLogin
+          appId={props.fbConfig.appId}
+          autoLoad={false}
+          fields="name,email, picture"
+          scope="public_profile"
+          //onClick={componentClicked}
+          callback={responseFacebook}
+          icon="fa-facebook"
+          textButton="Login"
+          size="small"
+          // render={(renderProps) => (
+          //   <button onClick={renderProps.onClick}>FB</button>
+          // )}
+        />
+      )}
+      {/* {login && <Image src={picture} roundedCircle />} */}
+
+      {login && <Button>{data.name}</Button>}
+    </>
   );
 }
-
-export default FBLogin;

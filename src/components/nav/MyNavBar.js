@@ -1,7 +1,6 @@
 import React, { Suspense } from "react";
 
 //import history from "./history";
-
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
 import Button from "react-bootstrap/Button";
@@ -13,9 +12,9 @@ import { FaGlobe, FaAlignJustify } from "react-icons/fa";
 
 import logo from "../../assets/kitesurfing.svg";
 
-import FBLogin from "../FBLogin";
-// const LazyFBLogin = React.lazy(() => import("../FBLogin"));
-const LazyFormLogin = React.lazy(() => import("../FormLogin"));
+// import FBLogin from "../FBLogin";
+const LazyFBLogin = React.lazy(() => import("../FBLogin"));
+// const LazyFormLogin = React.lazy(() => import("../FormLogin"));
 const LazyRefresh = React.lazy(() => import("./Refresh"));
 
 // fixed="top"
@@ -37,10 +36,12 @@ export default React.memo(function MyNavBar(props) {
           </Link>
         </Button>
 
-        <Suspense fallback={<span>Loading Login...</span>}>
+        <Suspense fallback={<span></span>}>
           <LazyRefresh />
-          <LazyFormLogin {...props} />
-          {/* <FBLogin {...props} /> */}
+
+          <LazyFBLogin {...props} />
+
+          {/* <LazyFormLogin {...props} /> */}
         </Suspense>
       </Nav>
       <Nav className="ml-auto">
