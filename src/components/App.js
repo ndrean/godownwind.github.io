@@ -24,6 +24,7 @@ const options = {
 };
 
 export default function App() {
+  console.log("_app_");
   const [users, setUsers] = useState("");
   const [events, setEvents] = useState("");
   const [user, setUser] = useState("");
@@ -50,7 +51,7 @@ export default function App() {
           cookie: true,
           xfbml: true,
           version: "v8.0",
-          scope: "email",
+          scope: "email, public_profile",
         })
       )
       .catch((err) => console.log(err));

@@ -13,11 +13,14 @@ import { FaGlobe, FaAlignJustify } from "react-icons/fa";
 
 import logo from "../../assets/kitesurfing.svg";
 
+import FBLogin from "../FBLogin";
+// const LazyFBLogin = React.lazy(() => import("../FBLogin"));
 const LazyFormLogin = React.lazy(() => import("../FormLogin"));
 const LazyRefresh = React.lazy(() => import("./Refresh"));
 
 // fixed="top"
 export default React.memo(function MyNavBar(props) {
+  console.log("_nav_");
   return (
     <Navbar bg="primary" fixed="top">
       <Nav className="mr-auto">
@@ -37,6 +40,7 @@ export default React.memo(function MyNavBar(props) {
         <Suspense fallback={<span>Loading Login...</span>}>
           <LazyRefresh />
           <LazyFormLogin {...props} />
+          {/* <FBLogin {...props} /> */}
         </Suspense>
       </Nav>
       <Nav className="ml-auto">

@@ -6,6 +6,7 @@ import { PositionProvider } from "./PositionContext";
 //import { UserProvider } from "./../UserContext";
 
 function Layout(props) {
+  console.log("_layout_");
   return (
     <Container>
       <PositionProvider>
