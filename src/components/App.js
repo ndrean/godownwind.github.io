@@ -5,15 +5,10 @@ import React, { useState, useEffect, Suspense, lazy } from "react";
 // lodash available within CRA ;
 import sortBy from "lodash/sortBy";
 
-import { Card, Image } from "react-bootstrap";
-
 import Loader from "../helpers/Loader";
 import urlBack from "../helpers/urlBack";
 
 import "../index.css";
-
-// const LazyLayout = lazy(() => import("./nav/Layout"));
-// import MyNavBar from "./nav/MyNavBar";
 
 const LazyMyNavBar = lazy(() => import("./nav/MyNavBar"));
 const LazyRoutes = lazy(() => import("./Routes"));
@@ -34,44 +29,7 @@ export default function App() {
   const [users, setUsers] = useState("");
   const [events, setEvents] = useState("");
   const [user, setUser] = useState("");
-
-  //const [loading, setLoading] = useState(false);
   const [jwtToken, setJwtToken] = useState("");
-  const [fbConfig, setFbConfig] = useState("");
-  const [cloudName, setCloudName] = useState("");
-
-  const handleAddUser = (currentUser) => {
-    setUser(currentUser);
-    if (!users.find((user) => user.email === currentUser.email)) {
-      setUsers((prev) => [...prev, currentUser]);
-    }
-  };
-
-  // fetch Facebook appID from backend
-  useEffect(() => {
-    fetch(urlBack + "/fbParams", options)
-      .then((res) => res.json())
-      .then((res) =>
-        setFbConfig({
-          appId: res.fb_id,
-          cookie: true,
-          xfbml: true,
-          version: "v8.0",
-          scope: "email, public_profile",
-        })
-      )
-      .catch((err) => console.log(err));
-  }, []);
-
-  // fetch Cloudinary credentials: cloudname
-  useEffect(() => {
-    fetch(urlBack + "/CLParams", options)
-      .then((res) => res.json())
-      .then((res) => {
-        setCloudName(res.CLOUD_NAME);
-      })
-      .catch((err) => console.log(err));
-  }, []);
 
   // fetch Events from db
   useEffect(() => {
@@ -85,6 +43,7 @@ export default function App() {
           return;
         }
         let result = await query.json();
+        // using lodash to sort by date and then by user's email
         return sortBy(result, ["itinary.date", "user.email"]);
       } catch (err) {
         setEvents(null);
@@ -118,7 +77,14 @@ export default function App() {
 
   const handleToken = (value) => setJwtToken(value);
 
-  const removeUser = () => setUser("");
+  const handleAddUser = (currentUser) => {
+    setUser(currentUser);
+    if (!users.find((user) => user.email === currentUser.email)) {
+      setUsers((prev) => [...prev, currentUser]);
+    }
+  };
+
+  // const removeUser = () => setUser("");
 
   const handleRemoveEvent = (newevents) => {
     // event
@@ -156,20 +122,21 @@ export default function App() {
     <>
       <Suspense fallback={<Loader />}>
         <LazyMyNavBar
-          fbConfig={fbConfig}
+          fbConfig="366589421180047"
           handleAddUser={handleAddUser}
           handleToken={handleToken}
         />
         <LazyRoutes
           // handleToken={handleToken}
           handleUpdateEvents={handleUpdateEvents}
+          handleRemoveEvent={handleRemoveEvent}
           handleUpdateEvent={handleUpdateEvent}
           handleAddEvent={handleAddEvent}
           users={users}
           events={events}
           user={user}
           jwtToken={jwtToken}
-          cloudName={cloudName}
+          cloudName="dd4eq9e3c"
         />
       </Suspense>
     </>

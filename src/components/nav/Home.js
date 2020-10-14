@@ -14,9 +14,9 @@ export default function Home() {
     <Container style={style}>
       <h5>How does this work?</h5>
       <p>
-        This app lets anyone see the downwind events. You need to be logged in
-        (Facebook or email) if you want to create/modify your event. You can
-        then manage an event using:
+        This app displays downwind events. You need to be logged in with
+        Facebook if you want to create and modify your event. You can then
+        manage an event using:
       </p>
       <ul>
         <li>
@@ -26,8 +26,9 @@ export default function Home() {
               <FaGlobe size={16} />
             </Link>
           </span>{" "}
-          where you visualize, create and geolocate an event with a start and
-          end marker. Only the events created this way will be displayed.
+          . You visualize, create and geolocate an event with a start and end
+          marker. Only the events created this way will be displayed on the map
+          because you provide gps coordinates.
         </li>
         <li>
           a list{" "}
@@ -36,8 +37,9 @@ export default function Home() {
               <FaAlignJustify size={16} />
             </Link>
           </span>{" "}
-          where you can also create an event but with no geolocation. In the
-          list, you can invite buddies, set a picture and ask to participate.
+          . You can also create an event but with no geolocation. However, with
+          the list, you can invite buddies, set a picture and ask to
+          participate.
         </li>
       </ul>{" "}
       <p>You may want to enable geolocation to center the map </p>
@@ -52,9 +54,8 @@ export default function Home() {
         </span>
         . An event has a start point and an end point. You click on the map and
         assign 'start' on 'end' in the popup. To save, close the popup (x). You
-        can also remove the marker. You can also use the search-box.
+        can also remove the marker.
       </p>
-      <p>Only the events created with the map will be geolocated.</p>
       <p>
         About the list:{" "}
         <span>

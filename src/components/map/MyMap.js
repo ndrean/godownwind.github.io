@@ -2,20 +2,26 @@ import React, {
   useRef,
   useEffect,
   useState,
+  useContext,
   Suspense,
   lazy,
   useCallback,
 } from "react";
 
+// Leaflet //
+import "../../index.css"; // to get #map
 import "leaflet/dist/leaflet.css";
-import "esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css";
 import L from "leaflet";
-import * as EsriGeocode from "esri-leaflet-geocoder";
+import { Map, TileLayer, Marker, Popup } from "react-leaflet";
+
+// Esri : github.com/Esri/esri-leaflet-geocoder //
+import { geosearch, geocodeService } from "esri-leaflet-geocoder";
+import "esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css";
+// import * as EsriGeocode from "esri-leaflet-geocoder";
 
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
-
-import { redIcon, greenIcon, blueIcon } from "./Icon";
+import { redIcon, greenIcon, blueIcon, goldIcon } from "./Icon";
 
 import { PositionContext } from "../nav/PositionContext";
 
@@ -26,49 +32,84 @@ import fetchModif from "../../helpers/fetchModif";
 const LazyMapForm = lazy(() => import("./MapForm"));
 const LazyHelp = lazy(() => import("./Help"));
 
-export default function MyMap(props) {
-  const [gps] = React.useContext(PositionContext);
+//// setup Icons (bug) ///
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+  iconUrl: require("leaflet/dist/images/marker-icon.png"),
+  shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+});
+
+export default React.memo(function MyMap(props) {
+  console.log("__Map__");
   const [startPoint, setStartPoint] = useState("");
   const [endPoint, setEndPoint] = useState("");
   const [date, setDate] = useState("");
   const [tripLength, setTripLength] = useState(0);
 
-  const mapRef = useRef(null);
-  const markersLayer = useRef(L.layerGroup([]));
-  //const searchCtrlRef = useRef();
+  const mapRef = useRef();
+  const markersLayerRef = useRef(L.layerGroup());
 
-  React.useLayoutEffect(() => {
-    const center = gps.Lat ? [gps.Lat, gps.Lng] : [45, 1];
-    mapRef.current = L.map("map", {
-      center: center,
-      zoom: 6,
-      layers: [
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution:
-            '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-        }),
-      ],
-    });
+  const [gps] = useContext(PositionContext);
+  const center = gps.Lat ? [gps.Lat, gps.Lng] : [45, 1];
 
-    L.control.scale().addTo(mapRef.current);
+  //////////// display the events //////////////////
+  const onEachFeature = useCallback((feature = {}, layer) => {
+    const { current: { leafletElement: mymap } = {} } = mapRef;
+    const { current: setOfMarkers } = markersLayerRef;
 
-    //github.com/Esri/esri-leaflet-geocoder
-    /*
-    searchCtrlRef.current = EsriGeocode.geosearch({
-      expanded: true,
-      zoomToResult: false,
-      position: "topright",
-      placeholder: "Search City / address",
-      title: "Search",
-      collapseAfterResult: true,
-      allowMultipleResults: true,
-    }).addTo(mapRef.current);
-    */
+    const {
+      properties: { date, start, end, distance } = {},
+      geometry: { coordinates },
+    } = feature;
+    if (coordinates) {
+      // !! Geojson LineString is [lng, lat] and Leaflet needs [lat, lng] !!
+      const startMarker = L.marker(invertArray(coordinates[0]), {
+        icon: redIcon,
+      }).addTo(setOfMarkers);
+      const endMarker = L.marker(invertArray(coordinates[1]), {
+        icon: greenIcon,
+      }).addTo(setOfMarkers);
+
+      const content = L.DomUtil.create("div");
+      content.innerHTML = `
+          <h6>${date} </h6>
+          <p> From: ${start}</p>
+          <p> To:  ${end} </p>
+          <p> Distance: ${parseFloat(distance).toFixed(0)} km </p>
+          `;
+      startMarker.bindPopup(content);
+      endMarker.bindPopup(content);
+      setOfMarkers.addTo(mymap);
+    }
+  }, []);
+
+  useEffect(() => {
+    const { current: { leafletElement: mymap } = {} } = mapRef;
+    const { current: setOfMarkers } = markersLayerRef;
+
+    Promise.resolve(props.events)
+      .then((res) => {
+        if (res) {
+          return convertToGeojson(res);
+        } else return;
+      })
+      .then((data) => {
+        L.geoJSON(data, {
+          onEachFeature: onEachFeature,
+        }).addTo(mymap);
+      });
 
     return () => {
-      mapRef.current.remove();
+      setOfMarkers.remove();
     };
-  }, [gps]);
+  }, [props.events, onEachFeature]);
+
+  function invertArray([a, b]) {
+    return [b, a];
+  }
+
+  /////////// put marker by searching a name ///////////////////
 
   const startEndIds = {};
   const startEndCoords = {};
@@ -76,21 +117,28 @@ export default function MyMap(props) {
   const handlePopup = useCallback(({ popup, place, coords, searchMarker }) => {
     let onOpenValue = "";
     //on popup open, catch the state (start/end) of the point if any
-    popup.on("popupopen", () => {
+    const getOnOpenValue = () => {
       const typeRadio = document.body.querySelectorAll('input[type="radio"]');
       onOpenValue = [...typeRadio].find((t) => t.checked === true);
-      if (onOpenValue) onOpenValue = onOpenValue.value;
-    });
+      if (onOpenValue) {
+        onOpenValue = onOpenValue.value;
+      }
+    };
+    popup.on("popupopen", getOnOpenValue);
 
     // on popup close, update a point to start/end and set state
-    popup.on("popupclose", (e) => {
+    const getOnPopupClose = (e) => {
+      console.log("_action_");
+      const { current: markersSet = {} } = markersLayerRef;
+
       // === e.target._leaflet_id ===markersLayer.current.getLayerId(searchMarker)
       const getId = L.stamp(e.target);
       const typeRadio = document.body.querySelectorAll('input[type="radio"]');
       let getValue = [...typeRadio].find((t) => t.checked === true);
-      if (getValue !== undefined) getValue = getValue.value;
+      if (getValue !== undefined) {
+        getValue = getValue.value;
+      }
 
-      console.log("_action_");
       switch (getValue) {
         case "start":
           startEndIds.start = L.stamp(searchMarker);
@@ -133,13 +181,12 @@ export default function MyMap(props) {
             startEndIds.end = null;
             setEndPoint(null);
           }
-          return markersLayer.current.removeLayer(searchMarker);
+          return markersSet.removeLayer(searchMarker);
 
         default:
-          return markersLayer.current.removeLayer(searchMarker);
+          return markersSet.removeLayer(searchMarker);
       }
 
-      console.log(startEndCoords);
       const keys = Object.keys(startEndCoords);
       const values = Object.values(startEndCoords);
       if (
@@ -156,47 +203,68 @@ export default function MyMap(props) {
       } else {
         setTripLength(0);
       }
-    });
+    };
+    popup.on("popupclose", getOnPopupClose);
+    // remove listener, pass the same context as for 'on'
+    return () => {
+      popup.off("popupopen", getOnOpenValue);
+      popup.off("popupclose", getOnPopupClose);
+    };
   }, []);
 
-  /*
-  useEffect(() => {
-    searchCtrlRef.current.on("results", (e) => {
-      if (!e.results) {
-        alert("Not found");
-        return;
-      }
-      const coords = e.latlng;
+  ///// Searchbox : type address and get gps & set marker
+  const handleSearch = useCallback(
+    (data) => {
+      const { current: markersSet = {} } = markersLayerRef;
+      if (!data.results || !data.latlng) return;
 
-      const resultMarker = L.marker(coords, { icon: blueIcon }).addTo(
-        markersLayer.current
+      const searchCtrlMarker = L.marker(data.latlng, { icon: blueIcon }).addTo(
+        markersSet
       );
-      markersLayer.current.addTo(mapRef.current);
-      const place = e.results[0].text;
       const content = L.DomUtil.create("div");
-      content.innerHTML = `<p>${e.results[0].text}</p> ${html}`;
-      const popup = resultMarker.bindPopup(content);
+      content.innerHTML = `<p>${data.text}</p> ${html}`;
+      const popup = searchCtrlMarker.bindPopup(content);
       popup.openPopup();
       handlePopup({
         popup,
-        place,
-        coords,
-        searchMarker: resultMarker,
+        place: data.text,
+        coords: data.latlng,
+        searchMarker: searchCtrlMarker,
       });
-    });
-  });
-  */
+    },
+    [handlePopup]
+  );
 
+  useEffect(() => {
+    const { current: { leafletElement: mymap } = {} } = mapRef;
+    if (!mymap) return;
+    L.control.scale().addTo(mymap);
+    const control = geosearch({
+      position: "topright",
+      placeholder: "Search City / address",
+      title: "Search",
+    });
+    control.addTo(mymap);
+    control.on("results", handleSearch);
+
+    return () => {
+      control.off("results", handleSearch);
+    };
+  }, [mapRef, handleSearch]);
+
+  ////////// Click on map and find location : reverse geocoding /////////////
   const reverseGeocode = useCallback(
     function (coords, searchMarker) {
-      EsriGeocode.geocodeService()
+      const { current: markersSet = {} } = markersLayerRef;
+
+      geocodeService()
         .reverse()
         .latlng(coords)
         .run((error, result) => {
           if (error) {
-            alert("not found");
-            return markersLayer.current.removeLayer(searchMarker);
+            return markersSet.removeLayer(searchMarker);
           }
+          searchMarker.addTo(markersSet);
           const {
             address: { CountryCode, ShortLabel, City },
           } = result;
@@ -226,60 +294,20 @@ export default function MyMap(props) {
   );
 
   useEffect(() => {
-    mapRef.current.on("click", (e) => {
-      const searchMarker = new L.marker(e.latlng, { icon: blueIcon }).addTo(
-        markersLayer.current
-      );
-      markersLayer.current.addTo(mapRef.current);
+    const { current: { leafletElement: mymap } = {} } = mapRef;
+
+    const research = (e) => {
+      const searchMarker = new L.marker(e.latlng, { icon: blueIcon });
       reverseGeocode(e.latlng, searchMarker);
-    });
+    };
+    mymap.on("click", research);
+
+    return () => {
+      mymap.off("click", research);
+    };
   }, [reverseGeocode]);
 
-  // find address on click with reverseGeocode (ESRI)
-  const invertArray = ([a, b]) => [b, a];
-
-  const onEachFeature = useCallback((feature) => {
-    if (feature.geometry.coordinates) {
-      // !! Geojson LinString is [lng, lat] and Leaflet needs [lat, lng] !!
-      const startMarker = L.marker(
-        invertArray(feature.geometry.coordinates[0]),
-        {
-          icon: redIcon,
-        }
-      ).addTo(mapRef.current);
-      const endMarker = L.marker(invertArray(feature.geometry.coordinates[1]), {
-        icon: greenIcon,
-      }).addTo(mapRef.current);
-      const content = L.DomUtil.create("div");
-      content.innerHTML = `
-        <h6>${feature.properties.date} </h6>
-        <p> From: ${feature.properties.start}</p>
-        <p> To:  ${feature.properties.end} </p>
-        <p> Distance: ${parseFloat(feature.properties.distance).toFixed(
-          0
-        )} km </p>
-        `;
-      startMarker.bindPopup(content);
-      endMarker.bindPopup(content);
-    }
-  }, []);
-
-  // display the events
-  useEffect(() => {
-    Promise.resolve(props.events)
-      .then((res) => {
-        if (res) {
-          return convertToGeojson(res);
-        } else return;
-      })
-      .then((data) => {
-        L.geoJSON(data, {
-          onEachFeature: onEachFeature,
-        }).addTo(mapRef.current);
-      });
-  }, [onEachFeature, props.events]);
-
-  // the form
+  /////////////// the form ///////////////////////
   let itinary = "";
   function handleSubmit(e) {
     e.preventDefault();
@@ -317,7 +345,7 @@ export default function MyMap(props) {
       method: "POST",
       index: "",
       body: formdata,
-      token: props.token,
+      token: props.jwtToken,
     })
       .then((result) => {
         if (result) {
@@ -329,7 +357,7 @@ export default function MyMap(props) {
           setEndPoint("");
           setDate("");
           setTripLength(0);
-          markersLayer.current.clearLayers();
+          //markersLayer.current.clearLayers();
         }
       })
       .catch((err) => console.log(err));
@@ -342,7 +370,15 @@ export default function MyMap(props) {
   return (
     <Container fluid>
       <Row>
-        <div id="map"></div>
+        <Map ref={mapRef} center={center} zoom={6}>
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution="&amp;copy <a href=&quote http://osm.org/copyright &quote> OpenStreetMap </a> contributors"
+          />
+          <Marker position={center} icon={goldIcon}>
+            <Popup>I'm here!</Popup>
+          </Marker>
+        </Map>
       </Row>
 
       <Suspense fallback={<span>Loading...</span>}>
@@ -360,4 +396,4 @@ export default function MyMap(props) {
       </Suspense>
     </Container>
   );
-}
+});

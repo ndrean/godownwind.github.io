@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useContext, useEffect } from "react";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Button from "react-bootstrap/Button";
@@ -6,10 +6,10 @@ import Button from "react-bootstrap/Button";
 import { PositionContext } from "./PositionContext";
 
 export default function Geoloc() {
-  const [accept, setAccept] = React.useState(false);
-  const [gps, setGps] = React.useContext(PositionContext);
+  const [accept, setAccept] = useState(false);
+  const [gps, setGps] = useContext(PositionContext);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (accept) {
       navigator.geolocation.getCurrentPosition(
         success,

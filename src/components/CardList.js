@@ -67,6 +67,8 @@ function CardList({ user, users, events, ...props }) {
   const handleRemove = async (e, event) => {
     e.preventDefault();
     if (!user) return window.alert("Please login");
+    if (user.email !== event.user.email)
+      return window.alert("You are not the owner");
 
     if (window.confirm("Confirm removal?")) {
       try {
@@ -75,7 +77,7 @@ function CardList({ user, users, events, ...props }) {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
-            authorization: "Bearer " + props.token,
+            authorization: "Bearer " + props.jwtToken,
           },
         }); // then new updated rows
         if (query.status !== 200) {
@@ -155,7 +157,7 @@ function CardList({ user, users, events, ...props }) {
         newfd.append("upload_preset", "ml_default");
         // direct call to the CL REST API
         return fetch(
-          `https://api.cloudinary.com/v1_1/${props.cloudname}/upload/`,
+          `https://api.cloudinary.com/v1_1/${props.cloudName}/upload/`,
           {
             method: "POST",
             body: newfd,
@@ -187,7 +189,7 @@ function CardList({ user, users, events, ...props }) {
             method: "POST",
             index: "",
             body: data,
-            token: props.token,
+            token: props.jwtToken,
           })
             .then((result) => {
               if (result) {
@@ -201,7 +203,7 @@ function CardList({ user, users, events, ...props }) {
             method: "PATCH",
             index: indexEdit,
             body: data,
-            token: props.token,
+            token: props.jwtToken,
           })
             .then((result) => {
               if (result) {
@@ -218,6 +220,10 @@ function CardList({ user, users, events, ...props }) {
 
   // Edit event
   async function handleEdit(event) {
+    if (user?.email !== event.user?.email) {
+      setShow(false);
+      return alert(" You are not the owner of this event");
+    }
     setIndexEdit(event.id); // get /api/v1/events/:id
     const data = events.find((ev) => ev.id === event.id);
     setItinary({
@@ -295,7 +301,7 @@ function CardList({ user, users, events, ...props }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "Bearer " + props.token,
+          Authorization: "Bearer " + props.jwtToken,
         },
         body: demand,
       });
@@ -304,7 +310,7 @@ function CardList({ user, users, events, ...props }) {
       const pushedParticipant = { email: user.email, notif: false };
       const pushedEvent = {
         ...event,
-        participants: [...participants, pushedParticipant],
+        participants: [...event.participants, pushedParticipant],
       };
       props.onhandleUpdateEvent(pushedEvent);
       handleCloseDetail();

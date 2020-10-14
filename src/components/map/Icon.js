@@ -30,10 +30,21 @@ const redIcon = new Icon({
   popupAnchor: [1, -34],
   shadowSize: [33, 33],
 });
+
+const goldIcon = new Icon({
+  iconUrl:
+    "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+  iconSize: [20, 33],
+  iconAnchor: [12, 31],
+  popupAnchor: [1, -34],
+  shadowSize: [33, 33],
+});
 /*
 const kiteIcon = new Icon({
   iconUrl: "../../assets/kitesurfing.svg",
   iconSize: [25, 25],
 });
 */
-export { redIcon, greenIcon, blueIcon };
+export { redIcon, greenIcon, blueIcon, goldIcon };

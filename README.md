@@ -86,6 +86,14 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/tr
 
 Run 'react-starter-kit' generated from <https://github.com/kriasoft/react-starter-kit/blob/master/docs/getting-started.md> to get example.
 
+# Leaflet, React-Leaflet
+
+`yarn add leaflet react-leaflet` and import css and set the width in a css class `.leaflet-container`. We can use the `GEOJSON` component to render it.
+
+# Seeding with Geojson data
+
+Use <http://geojson.io/#map=2/20.0/0.0> and export to get seeds.
+
 # Misc
 
 ## Sync props
@@ -95,3 +103,7 @@ Run 'react-starter-kit' generated from <https://github.com/kriasoft/react-starte
 ## Pass props to route component
 
 <https://learnwithparam.com/blog/how-to-pass-props-in-react-router/>
+
+# Login
+
+<https://github.com/deepakaggarwal7/react-social-login>
