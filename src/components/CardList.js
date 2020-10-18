@@ -88,7 +88,7 @@ function CardList({ user, users, events, ...props }) {
           if (response.status === 401) {
             return returnUnauthorized();
           }
-          props.onhandleRemoveEvent(response); // before: event
+          props.onhandleRemoveEvent(event.id); // before: event, after response
         }
       } catch (err) {
         console.log(err);
@@ -193,6 +193,7 @@ function CardList({ user, users, events, ...props }) {
           })
             .then((result) => {
               if (result) {
+                console.log(result);
                 props.onhandleAddEvent(result);
               }
             })

@@ -250,7 +250,7 @@ export default React.memo(function MyMap(props) {
     return () => {
       control.off("results", handleSearch);
     };
-  }, [mapRef, handleSearch]);
+  }, [handleSearch]);
 
   ////////// Click on map and find location : reverse geocoding /////////////
   const reverseGeocode = useCallback(
@@ -274,10 +274,10 @@ export default React.memo(function MyMap(props) {
           }
           const content = L.DomUtil.create("div");
           content.innerHTML = `
-          <p>${ShortLabel}</p>
-          <p>${City}</p>
-          <p>
-          ${html}
+            <p>${ShortLabel}</p>
+            <p>${City}</p>
+            <p>
+            ${html}
           `;
 
           const popup = searchMarker.bindPopup(content);

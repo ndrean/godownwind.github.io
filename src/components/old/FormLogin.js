@@ -11,14 +11,19 @@
 //   const [loading, setLoading] = useState(false);
 //   const [error, setError] = useState(null);
 //   const [loggedIn, setLoggedIn] = useState(false);
+//   const [initialTab, setInitialTab] = React.useState("login");
+//   const [avatar, setAvatar] = React.useState("");
+//   const [result, setResult] = React.useState("");
 
 //   function openModal() {
 //     setShowModal(true);
+//     setInitialTab("login");
 //   }
 
 //   function closeModal() {
 //     setShowModal(false);
 //     setError(null);
+//     setInitialTab("login");
 //   }
 
 //   function onLogin() {
@@ -338,7 +343,7 @@
 //                 containerClass: "RML-form-group",
 //                 label: "Email",
 //                 type: "email",
-//                 inputClass: "RML-form-control",
+//                 inputClass: "   RML-form-control",
 //                 id: "email",
 //                 name: "email",
 //                 placeholder: "Email",

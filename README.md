@@ -94,6 +94,10 @@ Run 'react-starter-kit' generated from <https://github.com/kriasoft/react-starte
 
 Use <http://geojson.io/#map=2/20.0/0.0> and export to get seeds.
 
+# Websocket with ActionCable
+
+<https://medium.com/@robin.raq/a-step-by-step-guide-to-integrating-action-cable-rails-6-0-with-reactjs-f7ea80df4090>
+
 # Misc
 
 ## Sync props

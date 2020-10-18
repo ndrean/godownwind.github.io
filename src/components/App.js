@@ -1,9 +1,7 @@
 import React, { useState, useEffect, Suspense, lazy } from "react";
-
-// import { Switch, Route } from "react-router-dom";
-
 // lodash available within CRA ;
-import sortBy from "lodash/sortBy";
+import { sortBy } from "lodash";
+// import some from "lodash/some";
 
 import Loader from "../helpers/Loader";
 import urlBack from "../helpers/urlBack";
@@ -12,10 +10,6 @@ import "../index.css";
 
 const LazyMyNavBar = lazy(() => import("./nav/MyNavBar"));
 const LazyRoutes = lazy(() => import("./Routes"));
-// const LazyMap = lazy(() => import("./map/MyMap"));
-// const LazyHome = lazy(() => import("./nav/Home"));
-// const LazyCardList = lazy(() => import("./CardList"));
-// const LazyRouteError = lazy(() => import("./nav/RouteError"));
 
 const options = {
   method: "GET",
@@ -43,13 +37,14 @@ export default function App() {
           return;
         }
         let result = await query.json();
-        // using lodash to sort by date and then by user's email
+        // using lodash:sortBy to sort by date and then by user's email
         return sortBy(result, ["itinary.date", "user.email"]);
       } catch (err) {
         setEvents(null);
         console.log(err);
       }
     }
+
     fetchData().then((res) => setEvents(res));
   }, [user, setEvents]);
 
@@ -70,10 +65,75 @@ export default function App() {
         console.log(err);
       }
     }
+
     fetchData().then((res) => {
       setUsers(res);
     });
   }, [user]);
+
+  ////// using Server Sent Events from backend: use EventSource API //////
+  useEffect(() => {
+    const stream = new EventSource(urlBack + "/sse/updateEvt");
+    const action = (e) => {
+      const event = JSON.parse(e.data);
+      console.log("** stream: updateEvents **", event.id);
+      setEvents((prev) => {
+        //console.log(prev);
+        const filteredEvents = prev.filter((evt) => evt.id !== event.id);
+        const newEvents = [...filteredEvents, event];
+        return sortBy(newEvents, ["itinary.date", "user.email"]);
+      });
+    };
+    stream.addEventListener("new", action);
+
+    return () => {
+      stream.removeEventListener("new", action);
+      stream.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    const stream = new EventSource(urlBack + "/sse/deleteEvent");
+    const action = (e) => {
+      let delId = JSON.parse(e.data).id;
+      if (delId) {
+        let ids = [];
+        delId = parseInt(delId, 10);
+        events.map((evt) => ids.push(evt.id));
+        if (!ids.includes(parseInt(delId, 10))) return;
+        setEvents(
+          sortBy(
+            events.filter((ev) => ev.id !== delId),
+            ["itinary.date", "user.email"]
+          )
+        );
+      }
+    };
+    stream.addEventListener("delEvt", action);
+
+    return () => {
+      stream.removeEventListener("delEvt", action);
+      stream.close();
+    };
+  });
+
+  // useEffect(() => {
+  //   const stream = new EventSource(urlBack + "/sse/redisDeleteEvent");
+  //   const action = (e) => {
+  //     console.log("**action**");
+  //     const delId = JSON.parse(e.data);
+  //     console.log("redis :", delId);
+  //     // if (delId) deleteEvent(delId);
+  //   };
+  //   stream.addEventListener("delete_event", action);
+
+  //   return () => {
+  //     stream.removeEventListener("delete_event", action);
+  //     stream.close();
+  //   };
+  // }, []);
+
+  ///////////////////////////////////////////////////////////////////////
 
   const handleToken = (value) => setJwtToken(value);
 
@@ -84,17 +144,17 @@ export default function App() {
     }
   };
 
-  // const removeUser = () => setUser("");
-
-  const handleRemoveEvent = (newevents) => {
+  const handleRemoveEvent = (id) => {
+    console.log("** RemoveEvent **");
+    // newevents & CardList => arg: reponse
+    // setEvents(sortBy(newevents, ["itinary.date", "user.email"]));
     // event
-    setEvents(sortBy(newevents, ["itinary.date", "user.email"]));
-    // setEvents((prev) => prev.filter((ev) => ev.id !== event.id));
+    setEvents((prev) => prev.filter((ev) => ev.id !== id));
   };
 
   function handleUpdateEvents(newevents) {
     // before event
-    setEvents(sortBy(newevents, ["itinary.date", "user.email"]));
+    // setEvents(sortBy(newevents, ["itinary.date", "user.email"]));
     // setEvents((prev) => {
     //   const filteredEvents = prev.filter((evt) => evt.id !== event.id);
     //   const newEvents = [...filteredEvents, event];
@@ -103,19 +163,22 @@ export default function App() {
   }
 
   function handleUpdateEvent(event) {
+    console.log("** UpdateEvent **");
     setEvents((prev) => {
       const filteredEvents = prev.filter((evt) => evt.id !== event.id);
       const newEvents = [...filteredEvents, event];
       return sortBy(newEvents, ["itinary.date", "user.email"]);
     });
   }
-  function handleAddEvent(newevents) {
+  function handleAddEvent(event) {
+    // after arg: newevents
+    // setEvents(sortBy(newevents, ["itinary.date", "user.email"]));
+    console.log("** AddEvent **");
     // before event
-    setEvents(sortBy(newevents, ["itinary.date", "user.email"]));
-    // setEvents((prev) => {
-    //   const newEvents = [...prev, event];
-    //   return sortBy(newEvents, ["itinary.date", "user.email"]);
-    // });
+    setEvents((prev) => {
+      const newEvents = [...prev, event];
+      return sortBy(newEvents, ["itinary.date", "user.email"]);
+    });
   }
 
   return (
