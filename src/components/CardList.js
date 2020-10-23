@@ -6,13 +6,10 @@ import Button from "react-bootstrap/Button";
 
 import { FaCheck } from "react-icons/fa";
 
-//import CardItem from "./CardItem";
-
 import urlBack from "../helpers/urlBack";
 import Loader from "../helpers/Loader";
 import EventForm from "./EventForm";
 import fetchModif from "../helpers/fetchModif"; // returns data after PATCH or POST depending upon endpoint
-//import cloudName from "../helpers/cloudName"; // for Cloudinary
 
 // const LazyEventForm = React.lazy(() => import("./EventForm"));
 const LazyEventModal = React.lazy(() => import("./EventModal"));

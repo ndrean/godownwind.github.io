@@ -1,7 +1,6 @@
 import React, { useState, useEffect, Suspense, lazy } from "react";
 // lodash available within CRA ;
-import { sortBy } from "lodash";
-// import some from "lodash/some";
+import sortBy from "lodash/sortBy";
 
 import Loader from "../helpers/Loader";
 import urlBack from "../helpers/urlBack";
@@ -75,10 +74,10 @@ export default function App() {
   useEffect(() => {
     const stream = new EventSource(urlBack + "/sse/updateEvt");
     const action = (e) => {
+      if (e.origin !== "https://godwd-api.herokuapp.com") return;
       const event = JSON.parse(e.data);
       console.log("** stream: updateEvents **", event.id);
       setEvents((prev) => {
-        //console.log(prev);
         const filteredEvents = prev.filter((evt) => evt.id !== event.id);
         const newEvents = [...filteredEvents, event];
         return sortBy(newEvents, ["itinary.date", "user.email"]);
@@ -92,15 +91,24 @@ export default function App() {
     };
   }, []);
 
+  // useEffect(() => {
+  //   const stream = new EventSource(urlBack + "/sse/redisDeleteEvent");
+  //   stream.onmessage = function (e) {
+  //     console.log("action: ", e.data);
+  //   };
+  // }, []);
+
   useEffect(() => {
     const stream = new EventSource(urlBack + "/sse/deleteEvent");
     const action = (e) => {
+      if (e.origin !== "https://godwd-api.herokuapp.com") return;
       let delId = JSON.parse(e.data).id;
       if (delId) {
         let ids = [];
         delId = parseInt(delId, 10);
         events.map((evt) => ids.push(evt.id));
         if (!ids.includes(parseInt(delId, 10))) return;
+        console.log("**action**: ", delId);
         setEvents(
           sortBy(
             events.filter((ev) => ev.id !== delId),
@@ -116,22 +124,6 @@ export default function App() {
       stream.close();
     };
   });
-
-  // useEffect(() => {
-  //   const stream = new EventSource(urlBack + "/sse/redisDeleteEvent");
-  //   const action = (e) => {
-  //     console.log("**action**");
-  //     const delId = JSON.parse(e.data);
-  //     console.log("redis :", delId);
-  //     // if (delId) deleteEvent(delId);
-  //   };
-  //   stream.addEventListener("delete_event", action);
-
-  //   return () => {
-  //     stream.removeEventListener("delete_event", action);
-  //     stream.close();
-  //   };
-  // }, []);
 
   ///////////////////////////////////////////////////////////////////////
 

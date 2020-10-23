@@ -12,7 +12,6 @@ import { FaGlobe, FaAlignJustify } from "react-icons/fa";
 
 import logo from "../../assets/kitesurfing.svg";
 
-// import FBLogin from "../FBLogin";
 const LazyFBLogin = React.lazy(() => import("../FBLogin"));
 // const LazyFormLogin = React.lazy(() => import("../FormLogin"));
 const LazyRefresh = React.lazy(() => import("./Refresh"));

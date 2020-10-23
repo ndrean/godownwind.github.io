@@ -1,6 +1,6 @@
 {
-  "short_name": "go downwind",
-  "name": "Find a downwind",
+  "short_name": "thedownwinder",
+  "name": "Find a downwind app",
   "icons": [{
       "src": "android-chrome-192x192.png",
       "sizes": "192x192",

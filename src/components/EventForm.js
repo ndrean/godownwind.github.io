@@ -5,16 +5,10 @@ import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Image from "react-bootstrap/Image";
-
 //import { Image as CLImage, CloudinaryContext } from "cloudinary-react";
-//import Select from "react-select";
-
-//import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
 import { FaCameraRetro, FaPaperPlane } from "react-icons/fa";
 
 const LazySelect = React.lazy(() => import("react-select"));
-//import cloudName from "../config/cloudName";
 
 const EventForm = (props) => {
   const {

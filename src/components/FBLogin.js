@@ -17,6 +17,9 @@ export default React.memo(function FBLogin(props) {
       profile: { id, email },
       // token: { accessToken },
     } = user;
+    if (!id || !email) {
+      return window.alert("Please check credentials");
+    }
     setUser(user);
     checkUser({ email, id });
   };
@@ -39,7 +42,7 @@ export default React.memo(function FBLogin(props) {
         uid: response.id,
       },
     };
-
+    console.log(fbUserData);
     const queryAppToken = await fetch(urlBack + "/findCreateFbUser", {
       method: "POST",
       body: JSON.stringify(fbUserData),

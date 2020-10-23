@@ -1,6 +1,6 @@
 {
-    "name": "goDownWind",
-    "short_name": "goDownWind",
+    "name": "the Down Winder app",
+    "short_name": "thedonwwinder",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",
