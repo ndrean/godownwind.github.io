@@ -75,18 +75,12 @@ export default function App() {
     const action = (e) => {
       if (e.data) {
         const event = JSON.parse(e.data);
-        console.log("** Create **", event.id);
         setEvents((prev) => {
-          console.log(prev);
-          const existing = prev.filter((evt) => evt.id === event.id);
-          if (!existing) {
-            const newEvents = [...prev, event];
-            return sortBy(newEvents, ["itinary.date", "user.email"]);
-          } else {
-            const filteredEvents = prev.filter((evt) => evt.id !== event.id);
-            const newEvents = [...filteredEvents, event];
-            return sortBy(newEvents, ["itinary.date", "user.email"]);
-          }
+          // if (prev.filter((evt) => evt.id === event.id)) {
+          const filteredEvents = prev.filter((evt) => evt.id !== event.id);
+          const newEvents = [...filteredEvents, event];
+          return sortBy(newEvents, ["itinary.date", "user.email"]);
+          // }
         });
       }
     };
@@ -102,10 +96,19 @@ export default function App() {
     const action = (e) => {
       const delId = parseInt(JSON.parse(e.data).id, 10);
       if (delId) {
-        console.log("** Del **: ", delId);
+        if (events) {
+          console.log("present del");
+          if (!events.filter((evt) => evt.id === delId)) return;
+        }
         setEvents((prev) => {
-          const filtered = prev.filter((ev) => ev.id !== delId);
-          if (filtered) return sortBy(filtered, ["itinary.date", "user.email"]);
+          if (prev) {
+            if (!prev.filter((evt) => evt.id === delId)) return prev;
+            console.log("d :", delId);
+            if (!prev.filter((ev) => ev.id === delId)) return prev;
+            const filtered = prev.filter((ev) => ev.id !== delId);
+            if (filtered)
+              return sortBy(filtered, ["itinary.date", "user.email"]);
+          }
         });
       }
     };
@@ -136,7 +139,7 @@ export default function App() {
     //   return;
     // } /////////////////
 
-    // setEvents((prev) => prev.filter((ev) => ev.id !== id));
+    setEvents((prev) => prev.filter((ev) => ev.id !== id));
   };
 
   function handleUpdateEvents(newevents) {
@@ -153,21 +156,21 @@ export default function App() {
   function handleUpdateEvent(event) {
     console.log("** UpdateEvent **");
     // if (events.map((evt) => evt.id === event.id)) return; ////////////
-    // setEvents((prev) => {
-    //   const filteredEvents = prev.filter((evt) => evt.id !== event.id);
-    //   const newEvents = [...filteredEvents, event];
-    //   return sortBy(newEvents, ["itinary.date", "user.email"]);
-    // });
+    setEvents((prev) => {
+      const filteredEvents = prev.filter((evt) => evt.id !== event.id);
+      const newEvents = [...filteredEvents, event];
+      return sortBy(newEvents, ["itinary.date", "user.email"]);
+    });
   }
   function handleAddEvent(event) {
     // after arg: newevents
     // setEvents(sortBy(newevents, ["itinary.date", "user.email"]));
     console.log("** AddEvent **");
     // before event
-    // setEvents((prev) => {
-    //   const newEvents = [...prev, event];
-    //   return sortBy(newEvents, ["itinary.date", "user.email"]);
-    // });
+    setEvents((prev) => {
+      const newEvents = [...prev, event];
+      return sortBy(newEvents, ["itinary.date", "user.email"]);
+    });
   }
 
   return (
