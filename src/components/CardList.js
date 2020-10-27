@@ -190,7 +190,6 @@ function CardList({ user, users, events, ...props }) {
           })
             .then((result) => {
               if (result) {
-                console.log(result);
                 props.onhandleAddEvent(result);
               }
             })
@@ -205,7 +204,7 @@ function CardList({ user, users, events, ...props }) {
           })
             .then((result) => {
               if (result) {
-                props.onhandleUpdateEvents(result);
+                props.onhandleUpdateEvent(result); // HERE onhandleUpdateEventS
               }
             })
             .catch((err) => console.log(err));

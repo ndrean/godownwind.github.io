@@ -12,6 +12,7 @@ const LazyRoutes = lazy(() => import("./Routes"));
 
 const options = {
   method: "GET",
+  mode: "cors",
   headers: {
     "Content-Type": "application/json",
   },
@@ -43,9 +44,8 @@ export default function App() {
         console.log(err);
       }
     }
-
     fetchData().then((res) => setEvents(res));
-  }, [user, setEvents]);
+  }, []);
 
   // fetch Users from db
   useEffect(() => {
@@ -64,69 +64,59 @@ export default function App() {
         console.log(err);
       }
     }
-
     fetchData().then((res) => {
       setUsers(res);
     });
-  }, [user]);
+  }, []);
 
   ////// using Server Sent Events from backend: use EventSource API //////
   useEffect(() => {
     const stream = new EventSource(urlBack + "/sse/updateEvt");
     const action = (e) => {
-      if (e.origin !== "https://godwd-api.herokuapp.com") return;
-      const event = JSON.parse(e.data);
-      console.log("** stream: updateEvents **", event.id);
-      setEvents((prev) => {
-        const filteredEvents = prev.filter((evt) => evt.id !== event.id);
-        const newEvents = [...filteredEvents, event];
-        return sortBy(newEvents, ["itinary.date", "user.email"]);
-      });
+      if (e.data) {
+        const event = JSON.parse(e.data);
+        console.log("** Create **", event.id);
+        setEvents((prev) => {
+          console.log(prev);
+          const existing = prev.filter((evt) => evt.id === event.id);
+          if (!existing) {
+            const newEvents = [...prev, event];
+            return sortBy(newEvents, ["itinary.date", "user.email"]);
+          } else {
+            const filteredEvents = prev.filter((evt) => evt.id !== event.id);
+            const newEvents = [...filteredEvents, event];
+            return sortBy(newEvents, ["itinary.date", "user.email"]);
+          }
+        });
+      }
     };
     stream.addEventListener("new", action);
-
     return () => {
       stream.removeEventListener("new", action);
       stream.close();
     };
   }, []);
 
-  // useEffect(() => {
-  //   const stream = new EventSource(urlBack + "/sse/redisDeleteEvent");
-  //   stream.onmessage = function (e) {
-  //     console.log("action: ", e.data);
-  //   };
-  // }, []);
-
   useEffect(() => {
     const stream = new EventSource(urlBack + "/sse/deleteEvent");
     const action = (e) => {
-      if (e.origin !== "https://godwd-api.herokuapp.com") return;
-      let delId = JSON.parse(e.data).id;
+      const delId = parseInt(JSON.parse(e.data).id, 10);
       if (delId) {
-        let ids = [];
-        delId = parseInt(delId, 10);
-        events.map((evt) => ids.push(evt.id));
-        if (!ids.includes(parseInt(delId, 10))) return;
-        console.log("**action**: ", delId);
-        setEvents(
-          sortBy(
-            events.filter((ev) => ev.id !== delId),
-            ["itinary.date", "user.email"]
-          )
-        );
+        console.log("** Del **: ", delId);
+        setEvents((prev) => {
+          const filtered = prev.filter((ev) => ev.id !== delId);
+          if (filtered) return sortBy(filtered, ["itinary.date", "user.email"]);
+        });
       }
     };
     stream.addEventListener("delEvt", action);
-
     return () => {
       stream.removeEventListener("delEvt", action);
       stream.close();
     };
-  });
+  }, []);
 
   ///////////////////////////////////////////////////////////////////////
-
   const handleToken = (value) => setJwtToken(value);
 
   const handleAddUser = (currentUser) => {
@@ -138,13 +128,19 @@ export default function App() {
 
   const handleRemoveEvent = (id) => {
     console.log("** RemoveEvent **");
-    // newevents & CardList => arg: reponse
+    // newevents & CardList => arg: response
     // setEvents(sortBy(newevents, ["itinary.date", "user.email"]));
     // event
-    setEvents((prev) => prev.filter((ev) => ev.id !== id));
+    // if (!events.map((evt) => evt.id).includes(id)) {
+    //   console.log("already");
+    //   return;
+    // } /////////////////
+
+    // setEvents((prev) => prev.filter((ev) => ev.id !== id));
   };
 
   function handleUpdateEvents(newevents) {
+    console.log("**updateEventS**");
     // before event
     // setEvents(sortBy(newevents, ["itinary.date", "user.email"]));
     // setEvents((prev) => {
@@ -156,21 +152,22 @@ export default function App() {
 
   function handleUpdateEvent(event) {
     console.log("** UpdateEvent **");
-    setEvents((prev) => {
-      const filteredEvents = prev.filter((evt) => evt.id !== event.id);
-      const newEvents = [...filteredEvents, event];
-      return sortBy(newEvents, ["itinary.date", "user.email"]);
-    });
+    // if (events.map((evt) => evt.id === event.id)) return; ////////////
+    // setEvents((prev) => {
+    //   const filteredEvents = prev.filter((evt) => evt.id !== event.id);
+    //   const newEvents = [...filteredEvents, event];
+    //   return sortBy(newEvents, ["itinary.date", "user.email"]);
+    // });
   }
   function handleAddEvent(event) {
     // after arg: newevents
     // setEvents(sortBy(newevents, ["itinary.date", "user.email"]));
     console.log("** AddEvent **");
     // before event
-    setEvents((prev) => {
-      const newEvents = [...prev, event];
-      return sortBy(newEvents, ["itinary.date", "user.email"]);
-    });
+    // setEvents((prev) => {
+    //   const newEvents = [...prev, event];
+    //   return sortBy(newEvents, ["itinary.date", "user.email"]);
+    // });
   }
 
   return (

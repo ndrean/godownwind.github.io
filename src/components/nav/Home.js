@@ -14,9 +14,9 @@ export default function Home() {
     <Container style={style}>
       <h5>How does this work?</h5>
       <p>
-        This app displays downwind events. You need to be logged in with
-        Facebook if you want to create and modify your event. You can then
-        manage an event using:
+        This app displays downwind events created by users. Once logged in with
+        Facebook, you can ask the owner to participe, and you can create/modify
+        your event. You can then manage an event using:
       </p>
       <ul>
         <li>
